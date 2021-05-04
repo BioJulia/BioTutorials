@@ -1,0 +1,3 @@
+[deps]
+BioAlignments = "00701ae9-d1dc-5365-b64a-a3a3ebf5695e"
+BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
