@@ -1,2 +1,6 @@
+title = "BioTutorials"
+uuid = "33e7be4a-8e14-4baf-892c-424bb664d307"
+authors = ["Kevin Bonham (@kescobo)", "Kenta Sato (@bicycle1885)"]
+
 [deps]
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
