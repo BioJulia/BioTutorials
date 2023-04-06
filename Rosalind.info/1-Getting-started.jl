@@ -20,6 +20,9 @@ using PlutoUI
 # ╔═╡ 4f2e0acf-5ac8-400a-82da-c66c7b07c467
 using BioSequences
 
+# ╔═╡ 41defb0d-7c92-46af-a4e2-35edac47a690
+using BenchmarkTools
+
 # ╔═╡ 76df740a-a130-41f3-8c3e-1f24729cc41b
 md"""
 # Getting Started with Rosalind.info Problems
@@ -40,7 +43,7 @@ and we'll get started!
 
 # ╔═╡ 82d06ce9-e588-4312-87c1-d1c97263958a
 md"""
-## Problem 1: Counting DNA nucleotides 🧬
+##  🧬 Problem 1: Counting DNA nucleotides
 
 🤔 [Problem link](https://rosalind.info/problems/dna/)
 
@@ -53,6 +56,9 @@ md"""
 
 """
 
+# ╔═╡ 943cd6d5-6339-4851-b663-c9c0ef77e7eb
+PlutoUI.TableOfContents()
+
 # ╔═╡ fb80d512-6cbe-4b02-919e-6c557729bb42
 md"""
 This section contains the code for counting each letter ('A', 'C', 'G', or 'T'),
@@ -62,7 +68,7 @@ You can enter a DNA sequence (as long as it only contains those 4 letters)
 here, and the counts will be displayed below.
 Note, the current values represent the demo input provided in the problem:
 
-$(@bind input TextField((50,3); default = "AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC"))
+$(@bind input_dna TextField((50,3); default = "AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC"))
 """
 
 # ╔═╡ f810b26d-a7cb-44d4-af35-c82fc3791ff6
@@ -72,7 +78,7 @@ Let's see how it's done!
 
 # ╔═╡ fe8daef1-b3e9-4cca-94bb-8a1dec71f0f7
 md"""
-### 🧵 DNA sequences are `String`s of `Char`s
+### DNA sequences are `String`s of `Char`s
 
 In julia, single characters and strings,
 which are made up of multiple characters, have different types.
@@ -147,14 +153,14 @@ end
 
 # ╔═╡ f0a203b4-7262-4fba-92b1-8bc535f1222a
 md"""
-✅ The answer is: **$(join(countbases(input), ' '))**!
+✅ The answer is: **$(join(countbases(input_dna), ' '))**!
 """
 
 # ╔═╡ 8ab5eb1c-a991-4c1e-a3b9-f412ec2579a4
 countbases("AAA")
 
 # ╔═╡ 6db22a7e-3f50-4ad0-adc0-ee3a4f53dc91
-countbases(input) # `input` stores what was entered into the box above
+countbases(input_dna) # `input_dna` stores what was entered into the box above
 
 # ╔═╡ 2368c64a-3ce7-4194-8182-56b5fdefcc96
 md"""
@@ -214,7 +220,7 @@ end
 	
 
 # ╔═╡ ae34b79a-f04f-4a29-839a-06c96972f8ec
-countbases2(input) == countbases(input)
+countbases2(input_dna) == countbases(input_dna)
 
 # ╔═╡ b2d6550e-33f5-4031-b018-f5618bc9b763
 md"""
@@ -239,10 +245,10 @@ special types that are not `Char` or `String`s.
 """
 
 # ╔═╡ c30d7552-6a79-4f94-97c8-c890c780ce3d
-seq = LongDNA{2}(input)
+seq = LongDNA{2}(input_dna)
 
 # ╔═╡ dbaf67d6-ba52-4e06-92f0-ea96fff08658
-sizeof(input)
+sizeof(input_dna)
 
 # ╔═╡ 02ebb987-bb0b-4070-89ff-b39bc74338a1
 sizeof(seq)
@@ -264,21 +270,181 @@ function countbases3(seq)
 end
 
 # ╔═╡ dff4bf6c-137e-44da-b201-fff7fb0b777d
-countbases3(seq) == countbases2(input)
+countbases3(seq) == countbases2(input_dna)
 
-# ╔═╡ e6a5e5cd-124b-4fb1-b1b0-544c27201f78
-@time countbases3(seq)
+# ╔═╡ 32798077-3ad2-4ca8-85b5-8e5ab9c12bf9
+md"""
+### Benchmarking
+
+Julia programmers like speed,
+so let's benchmark our approaches!
+
+"""
+
+# ╔═╡ 95373362-00eb-461c-b043-e4f61eacdf84
+testseq = randdnaseq(100_000)
+
+# ╔═╡ 0dd66cd4-2ef9-478a-86de-61f0ad5a6c84
+testseq_str = string(testseq)
+
+# ╔═╡ d187e8fa-2fa4-4b44-9e4f-ff12e6f97ccd
+@benchmark countbases($testseq_str)
 
 # ╔═╡ 57b42a4c-5ae6-413d-892f-ffd32651d7ca
-@time(countbases2(input))
+@benchmark(countbases2($testseq_str))
+
+# ╔═╡ e6a5e5cd-124b-4fb1-b1b0-544c27201f78
+@benchmark countbases3($testseq)
+
+# ╔═╡ 85ba5566-8292-433d-bea8-4994dafd223e
+md"""
+Interestingly, on my system, `countbases2()` is actually faster than `countbases()`,
+at least for this longer sequence. This may be bacause [SIMD](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data) lets the calls to `count()` work in parallel.
+
+But, as you can see, `countbases3()` is even faster. Let me make one more function that mimics the behavior of the original `countbases()` but uses `BioSequences.jl` instead.
+"""
+
+# ╔═╡ b32129ac-07c4-40bb-82e0-8773af956bd5
+function countbases4(seq)
+	a = 0
+	c = 0
+	g = 0
+	t = 0
+	for base in seq
+		if base == DNA_A
+			a += 1 # this is equivalent to `a = a + 1`
+		elseif base == DNA_C
+			c += 1
+		elseif base == DNA_G
+			g += 1
+		elseif base == DNA_T
+			t += 1
+		else
+			# it is often a good idea to try to handle possible mistakes explicitly
+			error("Base $base is not supported")
+		end
+	end
+	return (a, c, g, t)
+end
+
+# ╔═╡ 6ce1a73f-0b2b-45bc-a19a-67f40b4d27ac
+@benchmark countbases4($testseq)
+
+# ╔═╡ 281f2869-21f3-4a8c-9744-91b5d644c5c4
+md"""
+## ✍️ Problem 2: Transcription
+
+🤔 [Problem link](https://rosalind.info/problems/rna/)
+
+Enter your DNA to transcribe here:
+
+$(@bind input_rna TextField((50,3); default = "GATGGAACTTGACTACGTAAATT"))
+"""
+
+# ╔═╡ e9456da2-2a65-40c8-a8c8-35f655b79635
+md"""
+### Approach 1 - string `replace()`
+
+This one is pretty straightforward, as described.
+All we need to do is replace any `'T'`s with `'U'`s.
+Happily, julia has a handy `replace()` function
+that takes a string, and a `Pair` that is `pattern => replacement`.
+In principle, the pattern can be a literal `String`,
+or even a regular expression. But here, we can just use a `Char`.
+
+I'll also write the function using julia's one-line function definition syntax:
+"""
+
+# ╔═╡ 4760025e-b111-460b-8cf6-4d168c5dd4c6
+simple_transcribe(seq) = replace(seq, 'T'=> 'U')
+
+# ╔═╡ 62435b78-20bb-41e3-b9d0-8f8c2e376664
+md"""
+As always, there are lots of ways you *could* do this.
+This function won't hanndle poorly formatted sequences,
+for example. Or rather, it will handle them, even though it shouldn't:
+"""
+
+# ╔═╡ 49c46fd4-bda8-4a45-9feb-40f9973acd48
+md"""
+### Approach 2 - BioSequences `convert()`
+
+As you might expect, `BioSequences.jl` has a way to do this as well.
+`BioSequences.jl` doesn't just use a `String` to represent sequences,
+there are special types that can efficiently encode nucleic acid
+or amino acid sequences.
+In some cases, eg DNA or RNA with no ambiguous bases, using as few as 2 bits
+per base.
+"""
+
+# ╔═╡ f8ea3c52-2a10-41a7-b721-042e28686a33
+dna_seq = LongDNA{2}(input_rna)
+
+# ╔═╡ e322c9eb-b337-4984-a2d0-bd778d4ec728
+simple_transcribe(seq::LongDNA{N}) where N = convert(LongRNA{N}, seq)
+
+# ╔═╡ 8f33d625-2857-421c-ba27-ccc5eb6a3837
+md"""
+✅ The answer is: $(simple_transcribe(input_rna))
+"""
+
+# ╔═╡ a00c305d-1bfd-4421-88a1-43b4d20ff993
+simple_transcribe("This Is QUITE silly")
+
+# ╔═╡ 2bdc52a3-a42f-41ba-a6ee-09b6b5323a20
+md"""
+A couple of things to note here. First,
+I'm taking advantage of julia's multiple dispatch system.
+Instead of writing a separate function name for dealing with
+a `LongDNA` from `BioSequences.jl`, I wrote a new *method*
+for the same function by adding `::LongDNA{N}` to the argument.
+
+This tells julia to call this version of `simple_transcribe()`
+whenever the argument is a `LongDNA`. Otherwise, it will fall back to the original
+(julia always uses the method that is most specific for its arguments).
+
+The last thing to note is the `{N} ... where N`. This is just a way
+that we can use any DNA alphabet (2 bit or 4 bit), and get similar behavior.
+"""
+
+# ╔═╡ 192d1957-86a9-4188-b544-96b085d03f2b
+simple_transcribe(dna_seq)
+
+# ╔═╡ c3fc2e23-75e0-4add-bdfb-19b366dd60aa
+md"""
+### Benchmarks
+"""
+
+# ╔═╡ f0e4083c-940a-4237-9930-1e2131d1f7d7
+@benchmark simple_transcribe($testseq)
+
+# ╔═╡ 29ff77ca-d7c8-4838-a7ef-77a69943484f
+@benchmark simple_transcribe(x) setup=(x=LongDNA{2}(testseq))
+
+# ╔═╡ ff5198bf-ad93-4c1f-b127-15e07dce13a9
+@benchmark simple_transcribe(x) setup=(x=LongDNA{4}(testseq))
+
+# ╔═╡ 1956d6f3-de4a-48c3-8856-8a4b529aaeca
+md"""
+### Conclusions
+
+I'm actually a little surprised that the `replace()` method does so well,
+but there you have it. The `BioJulia method is about 2x faster on a 2-bit sequence
+(that is, if there's no ambiguity), but about the same speed on 4-bit sequences.
+"""
+
+# ╔═╡ 01290bd7-1ce9-4223-8cb1-fb5e122831af
+
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
+BenchmarkTools = "~1.3.2"
 BioSequences = "~3.1.3"
 PlutoUI = "~0.7.50"
 """
@@ -289,7 +455,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "8e73322fb83fcadf823533307985ca27c800d471"
+project_hash = "fcff54ffafa620feff21401e4e674b157e87fb4a"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -306,6 +472,12 @@ uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.BenchmarkTools]]
+deps = ["JSON", "Logging", "Printf", "Profile", "Statistics", "UUIDs"]
+git-tree-sha1 = "d9a9701b899b30332bbcb3e1679c41cce81fb0e8"
+uuid = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+version = "1.3.2"
 
 [[deps.BioSequences]]
 deps = ["BioSymbols", "Random", "SnoopPrecompile", "Twiddle"]
@@ -462,6 +634,10 @@ version = "1.3.0"
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
+[[deps.Profile]]
+deps = ["Printf"]
+uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
+
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
@@ -558,12 +734,13 @@ version = "17.4.0+0"
 
 # ╔═╡ Cell order:
 # ╟─76df740a-a130-41f3-8c3e-1f24729cc41b
-# ╠═82d06ce9-e588-4312-87c1-d1c97263958a
+# ╟─82d06ce9-e588-4312-87c1-d1c97263958a
 # ╟─072db8c0-d3c1-11ed-18fa-bff69835f8cd
+# ╟─943cd6d5-6339-4851-b663-c9c0ef77e7eb
 # ╟─fb80d512-6cbe-4b02-919e-6c557729bb42
 # ╟─f0a203b4-7262-4fba-92b1-8bc535f1222a
 # ╟─f810b26d-a7cb-44d4-af35-c82fc3791ff6
-# ╟─fe8daef1-b3e9-4cca-94bb-8a1dec71f0f7
+# ╠═fe8daef1-b3e9-4cca-94bb-8a1dec71f0f7
 # ╠═05b5fb9f-d2d3-4917-8ac4-1b14d746fe9c
 # ╠═4173f591-4232-4918-ae09-a3de449d42fe
 # ╠═024cd6e2-23e4-4490-b482-641f490db2cc
@@ -574,24 +751,49 @@ version = "17.4.0+0"
 # ╠═c39e25c7-0071-4be0-8fe1-38eb5e2e4263
 # ╠═8ab5eb1c-a991-4c1e-a3b9-f412ec2579a4
 # ╠═6db22a7e-3f50-4ad0-adc0-ee3a4f53dc91
-# ╠═2368c64a-3ce7-4194-8182-56b5fdefcc96
+# ╟─2368c64a-3ce7-4194-8182-56b5fdefcc96
 # ╠═8146ba26-b7a2-4776-85ee-a16f4d28177b
 # ╠═de67bd68-2a68-4739-b815-c203079f3826
 # ╟─538f6a28-90c0-4f3e-ae94-9ef143cb54d0
 # ╠═1ac75946-02b9-43e5-a878-b8c961ed08a4
-# ╠═7a21f39d-add6-4f8e-9407-ca8baa7b08a5
+# ╟─7a21f39d-add6-4f8e-9407-ca8baa7b08a5
 # ╠═7824b8ef-f5f5-49fa-9751-f1cf762283fe
 # ╠═ae34b79a-f04f-4a29-839a-06c96972f8ec
-# ╠═b2d6550e-33f5-4031-b018-f5618bc9b763
-# ╠═45b6ad47-0618-4433-9b9f-7809de3cbe32
+# ╟─b2d6550e-33f5-4031-b018-f5618bc9b763
+# ╟─45b6ad47-0618-4433-9b9f-7809de3cbe32
 # ╠═4f2e0acf-5ac8-400a-82da-c66c7b07c467
 # ╠═c30d7552-6a79-4f94-97c8-c890c780ce3d
 # ╠═dbaf67d6-ba52-4e06-92f0-ea96fff08658
 # ╠═02ebb987-bb0b-4070-89ff-b39bc74338a1
-# ╠═a8385030-4de5-4fd8-89ba-737f5d720a43
+# ╟─a8385030-4de5-4fd8-89ba-737f5d720a43
 # ╠═6892dd16-194f-4832-bcd8-2fbb26b081c2
 # ╠═dff4bf6c-137e-44da-b201-fff7fb0b777d
-# ╠═e6a5e5cd-124b-4fb1-b1b0-544c27201f78
+# ╟─32798077-3ad2-4ca8-85b5-8e5ab9c12bf9
+# ╠═41defb0d-7c92-46af-a4e2-35edac47a690
+# ╠═95373362-00eb-461c-b043-e4f61eacdf84
+# ╠═0dd66cd4-2ef9-478a-86de-61f0ad5a6c84
+# ╠═d187e8fa-2fa4-4b44-9e4f-ff12e6f97ccd
 # ╠═57b42a4c-5ae6-413d-892f-ffd32651d7ca
+# ╠═e6a5e5cd-124b-4fb1-b1b0-544c27201f78
+# ╟─85ba5566-8292-433d-bea8-4994dafd223e
+# ╠═b32129ac-07c4-40bb-82e0-8773af956bd5
+# ╠═6ce1a73f-0b2b-45bc-a19a-67f40b4d27ac
+# ╟─281f2869-21f3-4a8c-9744-91b5d644c5c4
+# ╟─8f33d625-2857-421c-ba27-ccc5eb6a3837
+# ╟─e9456da2-2a65-40c8-a8c8-35f655b79635
+# ╠═4760025e-b111-460b-8cf6-4d168c5dd4c6
+# ╟─62435b78-20bb-41e3-b9d0-8f8c2e376664
+# ╠═a00c305d-1bfd-4421-88a1-43b4d20ff993
+# ╟─49c46fd4-bda8-4a45-9feb-40f9973acd48
+# ╠═f8ea3c52-2a10-41a7-b721-042e28686a33
+# ╠═e322c9eb-b337-4984-a2d0-bd778d4ec728
+# ╟─2bdc52a3-a42f-41ba-a6ee-09b6b5323a20
+# ╠═192d1957-86a9-4188-b544-96b085d03f2b
+# ╟─c3fc2e23-75e0-4add-bdfb-19b366dd60aa
+# ╠═f0e4083c-940a-4237-9930-1e2131d1f7d7
+# ╠═29ff77ca-d7c8-4838-a7ef-77a69943484f
+# ╠═ff5198bf-ad93-4c1f-b127-15e07dce13a9
+# ╟─1956d6f3-de4a-48c3-8856-8a4b529aaeca
+# ╠═01290bd7-1ce9-4223-8cb1-fb5e122831af
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
