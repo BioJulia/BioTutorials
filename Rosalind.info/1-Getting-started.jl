@@ -434,7 +434,156 @@ but there you have it. The `BioJulia method is about 2x faster on a 2-bit sequen
 """
 
 # ╔═╡ 01290bd7-1ce9-4223-8cb1-fb5e122831af
+md"""
+## 😉 Problem 3 - Getting the complement
 
+I know, I know, [not the *compliment*](https://www.grammarly.com/blog/complement-compliment/), but if you have a better emoji idea, let me know.
+
+Enter your puzzle input here:
+
+$(@bind input_revc TextField((50,3); default = "AAAACCCGGT"))
+"""
+
+# ╔═╡ 067cf6b0-b4ab-4e5f-a02d-c69379a5d71b
+md"""
+This one is a bit tougher - we need to change each base coming in,
+and then reverse the result. Actually, that second part is easy,
+becuase julia has a built-in `reverse()` function that works for `String`s.
+"""
+
+# ╔═╡ f8a760b7-5adf-49d8-844d-c84063cb5472
+reverse("complement")
+
+# ╔═╡ fd9aa35c-bcaf-40aa-a20c-ce3dfbb18085
+md"""
+### Approach 1: using a `Dict`ionary
+
+In my opinion, the easiest thing to do is to use a `Dict()`,
+a data structure that allows arbitrary keys to look up arbitrary entries.
+
+For example:
+"""
+
+# ╔═╡ 3a56cd1a-2f24-45be-bd49-f73211e16f67
+my_dictionary = Dict("thing1"=> "hello", "thing2" => "world!")
+
+# ╔═╡ 76982256-6875-4454-a5ab-de8262cfa208
+my_dictionary["thing1"]
+
+# ╔═╡ 0a3e0260-7dcd-45d8-831b-c132ab5eb045
+my_dictionary["thing2"]
+
+# ╔═╡ 47180953-e165-49d8-b81e-b3efa9fdb6e4
+md"""
+So, we just make a dictionary with 4 entries, one for each base.
+Then, to apply this to every base in the sequence, we have a couple of options.
+One is to use the `String()` constructor and a "comprehension" - 
+basically a `for` loop in a single phrase:
+"""
+
+# ╔═╡ 3c7705d9-0f5d-41ee-87dd-29204929a8fa
+function revc(seq)
+	comp_dict = Dict(
+		'A'=>'T',
+		'C'=>'G',
+		'G'=>'C',
+		'T'=>'A'
+	)
+	comp = String([comp_dict[base] for base in seq])
+	return reverse(comp)
+end
+
+# ╔═╡ 646833e1-2bc3-4cb1-bdbb-d8cfda92b4f0
+md"""
+✅ The answer is: $(revc(input_revc))
+"""
+
+# ╔═╡ c84b26fb-ede4-4ff4-af4b-80175fedf558
+revc("AATTGGC")
+
+# ╔═╡ 7b161955-e13f-4054-b0d9-c337ab6bf664
+md"""
+Here, the comprehension `[comp_dict[base] for base in seq]` is equivalent to something like
+
+```julia
+comp = Char[]
+for base in seq
+	push!(comp, comp_dict[base])
+end
+```
+
+"""
+
+# ╔═╡ 2de2619b-a1c3-4ee1-8a0d-959b11fc7d76
+md"""
+### Approach 2: using `replace()` again
+
+It turns out, the `replace()` function we used for the transcription problem
+can be passed mulitple `Pair`s of patterns to replace!
+
+So we can just pass the pairs directly:
+"""
+
+# ╔═╡ 72fb06f1-6a5d-46ff-ba39-d73d7bb5c0bf
+function revc2(seq)
+	comp = replace(seq,
+		'A'=>'T',
+		'C'=>'G',
+		'G'=>'C',
+		'T'=>'A'
+	)
+	return reverse(comp)
+end
+
+# ╔═╡ d8ba106a-f859-4e60-a6b0-cfee3ac23164
+revc(input_revc) == revc2(input_revc)
+
+# ╔═╡ afc7c059-e0c9-4125-b891-5733882c3a02
+md"""
+### Approach 3: `BioSequences.jl`
+
+This is a pretty common need in bioinformatics, so `BioSequences.jl` actually has a `reverse_complement()` function built-in.
+"""
+
+# ╔═╡ 26a60458-5ad4-432d-86bb-06bf839d552e
+reverse_complement(LongDNA{2}(input_revc))
+
+# ╔═╡ 20802225-0c76-404a-821f-7057bf24c103
+md"""
+### Once more, benchmarks
+"""
+
+# ╔═╡ fd52b9d0-8fcb-4913-8e02-d94f7a290a25
+@benchmark revc($testseq_str)
+
+# ╔═╡ c6b28492-3780-45d3-8783-9abc1744daa2
+@benchmark revc2($testseq_str)
+
+# ╔═╡ 79b66b01-5c1a-4dd9-b042-13af046ab7ae
+@benchmark reverse_complement($testseq)
+
+# ╔═╡ 7f00da1d-8e3e-48d3-976c-1df011cf52f1
+@benchmark reverse_complement(testseq_4bit) setup=(testseq_4bit = convert(LongDNA{4}, testseq))
+
+# ╔═╡ 80bf8696-ef49-49b4-b826-618a3e806e61
+md"""
+### Conclusions
+
+This one is a no-brainer! The `reverse_complement()` function is about 200x faster than the dictionary method, and about 1000x faster than `replace()` for both 2 bit and 4 bit DNA sequences.
+"""
+
+# ╔═╡ 9a466bd5-0cf1-4324-8132-f6f27fc2650b
+md"""
+## ⌛ Overall Conclusions
+
+A lot of bioinformatics is essentially string manipulation.
+Julia has a lot of useful functionality to work with `String`s
+directly, but those methods often leave a lot of performance on the table.
+
+`BioSequences.jl` provides some nice sequence types and incredibly efficient
+data structures. We'll be seeing more of them in coming tutorials.
+
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -794,6 +943,29 @@ version = "17.4.0+0"
 # ╠═29ff77ca-d7c8-4838-a7ef-77a69943484f
 # ╠═ff5198bf-ad93-4c1f-b127-15e07dce13a9
 # ╟─1956d6f3-de4a-48c3-8856-8a4b529aaeca
-# ╠═01290bd7-1ce9-4223-8cb1-fb5e122831af
+# ╟─01290bd7-1ce9-4223-8cb1-fb5e122831af
+# ╠═646833e1-2bc3-4cb1-bdbb-d8cfda92b4f0
+# ╟─067cf6b0-b4ab-4e5f-a02d-c69379a5d71b
+# ╠═f8a760b7-5adf-49d8-844d-c84063cb5472
+# ╠═fd9aa35c-bcaf-40aa-a20c-ce3dfbb18085
+# ╠═3a56cd1a-2f24-45be-bd49-f73211e16f67
+# ╠═76982256-6875-4454-a5ab-de8262cfa208
+# ╠═0a3e0260-7dcd-45d8-831b-c132ab5eb045
+# ╟─47180953-e165-49d8-b81e-b3efa9fdb6e4
+# ╠═3c7705d9-0f5d-41ee-87dd-29204929a8fa
+# ╠═c84b26fb-ede4-4ff4-af4b-80175fedf558
+# ╟─7b161955-e13f-4054-b0d9-c337ab6bf664
+# ╟─2de2619b-a1c3-4ee1-8a0d-959b11fc7d76
+# ╠═72fb06f1-6a5d-46ff-ba39-d73d7bb5c0bf
+# ╠═d8ba106a-f859-4e60-a6b0-cfee3ac23164
+# ╟─afc7c059-e0c9-4125-b891-5733882c3a02
+# ╠═26a60458-5ad4-432d-86bb-06bf839d552e
+# ╟─20802225-0c76-404a-821f-7057bf24c103
+# ╠═fd52b9d0-8fcb-4913-8e02-d94f7a290a25
+# ╠═c6b28492-3780-45d3-8783-9abc1744daa2
+# ╠═79b66b01-5c1a-4dd9-b042-13af046ab7ae
+# ╠═7f00da1d-8e3e-48d3-976c-1df011cf52f1
+# ╟─80bf8696-ef49-49b4-b826-618a3e806e61
+# ╠═9a466bd5-0cf1-4324-8132-f6f27fc2650b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
