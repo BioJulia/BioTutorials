@@ -56,7 +56,7 @@ align_mem(joinpath(@__DIR__, "SRR1602510_1.fastq.gz"), joinpath(@__DIR__, "GCF_0
 ## read features with types ["rRNA", "tRNA", "CDS"] from the .gff file nad use ["ID", "Name", "locus_tag"] parameters to name the feature
 ann = Features(joinpath(@__DIR__, "genomic.gff"), ["rRNA", "tRNA", "CDS"]; name_keys=["ID", "Name", "locus_tag"])
 
-#add annotations for the regions upstream ("5UTR") and downstream ("3UTR") of each "CDS"
+## add annotations for the regions upstream ("5UTR") and downstream ("3UTR") of each "CDS"
 addutrs!(ann; cds_type="CDS", five_type="5UTR", five_length=200, three_type="3UTR", three_length=100) 
 
 #fill all regions without annotation with "IGR"
