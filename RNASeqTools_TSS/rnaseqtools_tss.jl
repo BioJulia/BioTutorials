@@ -53,7 +53,7 @@ align_mem(joinpath(@__DIR__, "SRR1602510_1.fastq.gz"), joinpath(@__DIR__, "GCF_0
 # To annotate the alignments, we need to read the alignments file and the annotation file, then we can 
 # explore the annotated alignments.
 
-#read features with types ["rRNA", "tRNA", "CDS"] from the .gff file nad use ["ID", "Name", "locus_tag"] parameters to name the feature
+## read features with types ["rRNA", "tRNA", "CDS"] from the .gff file nad use ["ID", "Name", "locus_tag"] parameters to name the feature
 ann = Features(joinpath(@__DIR__, "genomic.gff"), ["rRNA", "tRNA", "CDS"]; name_keys=["ID", "Name", "locus_tag"])
 
 #add annotations for the regions upstream ("5UTR") and downstream ("3UTR") of each "CDS"
