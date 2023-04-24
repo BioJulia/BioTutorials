@@ -25,6 +25,7 @@ using RNASeqTools
 # directory /ncbi_dataset/data/GCF_013085075.1/ into the folder containing this notebook. The folder should then
 # look like:
 #
+# ```
 # RNASeqTools_TSS
 #   ├── GCF_013085075.1_ASM1308507v1_genomic.fna
 #   ├── genomic.gff
@@ -32,7 +33,7 @@ using RNASeqTools
 #   ├── Project.toml
 #   ├── rnaseqtools_tss.ipynb
 #   └── rnaseqtools_tss.jl
-
+# ```
 # NCBI stores reads in its internal format SRA, we can use prefetch and fastq-dump from the sra-tools to 
 # download reads and convert them to the fastq format. The reads in sample SRR1602510 come from a TEX-treated 
 # sample and can be used to identify primary transcription start sites.
