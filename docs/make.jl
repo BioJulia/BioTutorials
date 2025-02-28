@@ -1,6 +1,13 @@
 using Documenter
 using DocumenterVitepress
 
+ROSALIND_PAGES = [
+            "rosalind/index.md",
+            "rosalind/01-dna.md",
+            "rosalind/02-rna.md",
+            "rosalind/03-revc.md",
+        ]
+
 makedocs(
     sitename = "BioTutorials",
     authors = "Kevin Bonham and Contributors",
@@ -14,13 +21,8 @@ makedocs(
         build_vitepress = haskey(ENV, "CI")
     ),
     pages = [
-        "Rosalind.info" => [
-            "rosalind/01-dna.md",
-            "rosalind/02-rna.md",
-            "rosalind/03-revc.md",
-
-        ],
-    ]
+        "Rosalind.info" =>  ROSALIND_PAGES
+       ]
 )
 
 deploydocs(

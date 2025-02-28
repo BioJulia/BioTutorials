@@ -89,7 +89,7 @@ So let's see if it works!
 input_dna = "AAAACCCGGT"
 answer = "ACCGGGTTTT"
 
-@assert revc("AATTGGC") == answer
+@assert revc(input_dna) == answer
 ```
 
 
@@ -113,7 +113,7 @@ function revc2(seq)
 end
 
 
-@assert revc(input_revc) == revc2(input_revc)
+@assert revc(input_dna) == revc2(input_dna)
 ```
 
 
@@ -123,7 +123,9 @@ This is a pretty common need in bioinformatics, so `BioSequences.jl` actually ha
 
 
 ```@example revc
-reverse_complement(LongDNA{2}(input_revc))
+using BioSequences
+
+reverse_complement(LongDNA{2}(input_dna))
 ```
 
 
@@ -133,6 +135,11 @@ reverse_complement(LongDNA{2}(input_revc))
 
 ```@example revc
 using BenchmarkTools
+
+
+testseq = randdnaseq(100_000) #this is defined in BioSequences
+testseq_str = string(testseq)
+
 
 @benchmark revc($testseq_str)
 ```

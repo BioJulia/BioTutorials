@@ -1,4 +1,4 @@
-# Getting Started with Rosalind.info Problems
+# 🧑‍🔬 Getting Started with Rosalind.info Problems
 
 If you're just learning bioinformatics,
 or diving into a new programming language with an interest in biology,
@@ -12,3 +12,8 @@ as well as using functionality from the BioJulia family of packages.
 
 Once you've signed up for an account at rosalind.info, come on back here,
 and we'll get started!
+
+
+```@contents
+Pages = Main.ROSALIND_PAGES
+```

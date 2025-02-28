@@ -5,19 +5,19 @@
 layout: home
 
 hero:
-  name: "Bio Tutorials"
-  text: "Doing Biology with Julia"
-  tagline: Tutorials
+  name: "BioJulia"
+  text: "Tutorials"
+  tagline: "Doing biology with Julia"
   actions:
     - theme: brand
-      text: Getting Started
-      link: /getting_started/juliainstallation
+      text: Basic Tutorals
+      link: /rosalind/index
     - theme: alt
-      text: Overview
-      link: /overview
-    - theme: alt
-      text: View on Github
+      text: BioJulia documentation
       link: https://github.com/BioJulia/BioJuliaDocs
+    - theme: alt
+      text: Source code on github
+      link: https://github.com/BioJulia/BioTutorials
 features:
   - title: Rosalind.info Problems
     details: These are still a work in progress
