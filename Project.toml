@@ -1,7 +1,8 @@
-title = "BioTutorials"
 uuid = "33e7be4a-8e14-4baf-892c-424bb664d307"
 authors = ["Kevin Bonham (@kescobo)", "Kenta Sato (@bicycle1885)"]
+title = "BioTutorials"
 version = "0.1.0"
 
 [deps]
+BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
