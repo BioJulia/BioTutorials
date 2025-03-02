@@ -17,7 +17,7 @@ makedocs(
     draft = false,
     format = DocumenterVitepress.MarkdownVitepress(
         repo = "https://github.com/BioJulia/BioTutorials",
-        md_output_path = haskey(ENV, "CI") ? "$build/.documenter" : ".",
+        # md_output_path = ".", # remove when pushing
         build_vitepress = haskey(ENV, "CI")
     ),
     pages = [
