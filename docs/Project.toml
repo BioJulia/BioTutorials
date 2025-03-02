@@ -1,0 +1,12 @@
+[deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
+BioSymbols = "3c28c6f8-a34d-59c4-9654-267d177fcfa9"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
+DocumenterVitepress = "4710194d-e776-4893-9690-8d956a29c365"
+FASTX = "c2308a5c-f048-11e8-3e8a-31650f418d12"
+FormatSpecimens = "3372ea36-2a1a-11e9-3eb7-996970b6ffbd"
+JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
+LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
+XAM = "d759349c-bcba-11e9-07c2-5b90f8f05f7c"
