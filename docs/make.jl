@@ -26,7 +26,7 @@ makedocs(
 )
 
 deploydocs(
-    repo = "https://github.com/BioJulia/BioJuliaDocs.git",
+    repo = "https://github.com/BioJulia/BioTutorials.git",
     target = "build",
     devbranch = "main",
     branch = "gh-pages",
