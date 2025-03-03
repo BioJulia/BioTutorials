@@ -55,7 +55,7 @@ As always, there are lots of ways you *could* do this.
 This function won't hanndle poorly formatted sequences,
 for example. Or rather, it will handle them, even though it shouldn't:
 
-### Approach 2 - BioSequences `convert()`
+### Approach 2 - BioSequences `LongRNA`
 
 As you might expect, `BioSequences.jl` has a way to do this as well.
 `BioSequences.jl` doesn't just use a `String` to represent sequences,
@@ -70,7 +70,7 @@ using BioSequences
 dna_seq = LongDNA{2}(input_dna)
 
 
-simple_transcribe(seq::LongDNA{N}) where N = convert(LongRNA{N}, seq)
+simple_transcribe(seq::LongDNA{N}) where N = LongRNA{N}(seq)
 
 rna_seq = simple_transcribe(dna_seq)
 ```
