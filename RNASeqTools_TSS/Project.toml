@@ -1,0 +1,7 @@
+name = "RNASeqTools_TSS"
+uuid = "22ec6cf8-324d-4466-8826-e36db40d94b7"
+authors = ["Malte Siemers <malte.siemers@mailbox.org>"]
+version = "0.1.0"
+
+[deps]
+RNASeqTools = "c929925e-1c85-4562-9573-d68085edd19a"
