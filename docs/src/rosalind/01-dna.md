@@ -1,5 +1,5 @@
 
-##  🧬 Problem 1: Counting DNA nucleotides
+#  🧬 Problem 1: Counting DNA nucleotides
 
 🤔 [Problem link](https://rosalind.info/problems/dna/)
 
