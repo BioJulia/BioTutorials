@@ -6,6 +6,8 @@ ROSALIND_PAGES = [
             "rosalind/01-dna.md",
             "rosalind/02-rna.md",
             "rosalind/03-revc.md",
+            "rosalind/04-fib.md",
+            "rosalind/05-gc.md",
         ]
 
 makedocs(
