@@ -1,10 +1,8 @@
 # Counting Point Mutations
 
 !!! warning "The Problem"
-    Problem
 
-    Given two strings s and t of equal length, the Hamming distance between s
-    and t, denoted dH(s,t), is the number of corresponding symbols that differ in s and t.
+    Given two strings s and t of equal length, the Hamming distance between s and t, denoted dH(s,t), is the number of corresponding symbols that differ in s and t.
 
         Given: Two DNA strings s and t of equal length (not exceeding 1 kbp).
 
@@ -18,12 +16,13 @@
     ```
 
     ***Sample Output***
+
     ```
     7
     ```
 
 
-To calculate the Hamming Distance between two strings/sequences, the two strings/DNA sequences must be the same length. Therefore, we can calculate the Hamming Distance by looping over one of the strings and checking if the corresponding character in the other string matches. Each mismatch will cause 1 to be added to a `counter` variable. At the end of the loop, we can return the total value of the `counter` variable.
+To calculate the Hamming Distance between two strings/sequences, the two strings/DNA sequences must be the same length. We can calculate the Hamming Distance by looping over the characters in one of the strings and checking if the corresponding character at the same index in the other string matches. Each mismatch will cause 1 to be added to a `counter` variable. At the end of the loop, we can return the total value of the `counter` variable.
 
 Let's give this a try!
 
@@ -41,7 +40,6 @@ function calcHamming(SeqA, SeqB)
 
     mismatches = 0
     for i in 1:SeqLength
-        # print(i)
         if SeqA[i] != SeqB[i]
             mismatches += 1
             end
@@ -77,11 +75,11 @@ BioAlignmentsHamming[1]
 ```
 
 
- The BioAlignments `hamming_distance` function requires three input variables -- the first of which allows the user to control the `type` of the returned hamming distance value. In the above example, `Int64` is provided as the input variable, but `Float64` or `UInt8` are also acceptable inputs.
+ The BioAlignments `hamming_distance` function requires three input variables -- the first of which allows the user to control the `type` of the returned hamming distance value. In the above example, `Int64` is provided as the input variable, but `Float64` or `Int8` are also acceptable inputs.
 
  The second two input variables are the two sequences that are being compared.
 
- There are two outputs of this function: the actual Hamming Distance value and the Alignment Anchor. The Alignment Anchor is a a one-dimensional array (vector) that is the same length as the length of the input strings. Each value in the vector is a also an AlignmentAnchor with three fields: sequence position, reference position, and an operation code ('0' for start, '=' for match, 'X' for mismatch). 
+ There are two outputs of this function: the actual Hamming Distance value and the Alignment Anchor. The Alignment Anchor is a a one-dimensional array (vector) that is the same length as the length of the input strings. Each value in the vector is also an AlignmentAnchor with three fields: sequence position, reference position, and an operation code ('0' for start, '=' for match, 'X' for mismatch). 
  
  The Alignment Anchor for the above example is 
  ```
