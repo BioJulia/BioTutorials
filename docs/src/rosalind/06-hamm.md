@@ -27,11 +27,28 @@
 
 To calculate the Hamming Distance between two strings/sequences, the two strings/DNA sequences must be the same length.  
 
- We can calculate the Hamming Distance by looping over the characters in one of the strings and checking if the corresponding character at the same index in the other string matches. 
+The simplest way to solve this problem is to compare the corresponding values in each string for each index and then sum the mismatches. This is the fastest and most idiomatic Julia solution, as it leverages vector math.
+
+Let's give this a try!
+
+```julia
+ex_seq_a = "GAGCCTACTAACGGGAT"
+ex_seq_b = "CATCGTAATGACGGCCT"
+
+count(i-> ex_seq_a[i] != ex_seq_b[i], eachindex(ex_seq_a))
+```
+
+
+
+### For Loop
+
+Another way we can approach this would be to use the for-loop. This method will be a bit slower.
+
+We can calculate the Hamming Distance by looping over the characters in one of the strings and checking if the corresponding character at the same index in the other string matches. 
  
  Each mismatch will cause 1 to be added to a `counter` variable. At the end of the loop, we can return the total value of the `counter` variable.  
 
-Let's give this a try!
+
 
 ```julia
 ex_seq_a = "GAGCCTACTAACGGGAT"
