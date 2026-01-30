@@ -115,7 +115,23 @@ bio_hamming[1]
  The Alignment Anchor for the above example is:
  ```
  AlignmentAnchor[AlignmentAnchor(0, 0, '0'), AlignmentAnchor(1, 1, 'X'), AlignmentAnchor(2, 2, '='), AlignmentAnchor(3, 3, 'X'), AlignmentAnchor(4, 4, '='), AlignmentAnchor(5, 5, 'X'), AlignmentAnchor(7, 7, '='), AlignmentAnchor(8, 8, 'X'), AlignmentAnchor(9, 9, '='), AlignmentAnchor(10, 10, 'X'), AlignmentAnchor(14, 14, '='), AlignmentAnchor(16, 16, 'X'), AlignmentAnchor(17, 17, '=')]
-
  ```
+
+ ### Distances.Jl method
+
+ Another package that calculates the Hamming distance is the [Distances package](https://github.com/JuliaStats/Distances.jl). We can call its `hamming` function on our two test sequences:
+
+
+
+```julia
+using Distances
+
+ex_seq_a = "GAGCCTACTAACGGGAT"
+ex_seq_b = "CATCGTAATGACGGCCT"
+
+Distances.hamming(ex_seq_a, ex_seq_b)
+```
+
+
 
 
