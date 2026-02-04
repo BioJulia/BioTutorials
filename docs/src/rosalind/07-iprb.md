@@ -60,7 +60,7 @@ Using the information above, we can derive an algorithm using the variables k, m
 
 We could calculate the probability of a progeny having a dominant allele, 
 
-but in this case, it is easier to calculate the likelihood of a progeny having a recessive allele.
+but in this case, it is easier to calculate the likelihood of a progeny having the recessive phenotype.
 
  This is a relatively rarer event, and the calculation will be straightforward. 
  
@@ -131,6 +131,24 @@ end
 mendel(2,2,2)
 ```
 
+Deriving and using this algorithm is a clean solution. 
 
+However, it is also narrowly tailored to a specific problem. 
+
+What happens if we want to solve a more complicated problem or if there are additional requirements tacked on? 
+
+For example, what if we wanted to solve a question like "What's the probability of a heterozygous offspring?"
+
+We would need to derive another alogorithm for this similar, yet slightly different problem. 
+
+Algorithms work in certain cases, but also don't scale up if we add another trait.
+
+Another approach would be to use a statistics based solution. 
+
+For instance, we can use a simulation that can broadly calculate the likelihood of a given offspring based on a set of given probabilities.
+
+This solution is generic and can be used to ask more types of questions. 
+
+<br>
 
 ### Simulation Method
