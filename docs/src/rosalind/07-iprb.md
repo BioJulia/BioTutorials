@@ -54,8 +54,8 @@ We just have to subtract this probability from 1 to get the overall likelihood o
 
 To demonstrate how to derive this algorithm, we can use H and h to signify dominant and recessive alleles, respectively.
 Out of all the possible combinations, we will only get a progeny with a recessive trait in three situations: Hh x Hh, Hh x hh, and hh x hh. 
-For all of these situations, we must calculate the probability of these mating combinations occuring (based on k, m, and n), 
-as well as the probability of these events leading to a progeny with a recessive trait. 
+For all of these situations, we must calculate the probability of these mating combinations occurring (based on k, m, and n), 
+as well as the probability of these events leading to a progeny with a recessive trait.
 
 First, we must calculate the probability of picking the first and second mate.
 For the combination Hh x Hh, this is $\frac{m}{(k+m+n)}$ multiplied by $\frac{(m-1)}{(k+m+n-1)}$.
@@ -68,7 +68,7 @@ It is important to note that the probability of selecting Hh x hh as a mating pa
 as there are two ways to choose this combination.
 Hh x hh can be selected (where Hh is picked first), as well as hh x Hh. Order matters!
 
-| Probability of combination occuring | Hh x Hh | Hh x hh | hh x hh |
+| Probability of combination occurring | Hh x Hh | Hh x hh | hh x hh |
 | --- |---|---|---|
 | | $\frac{m(m-1)}{(k+m+n)(k+m+n-1)}$ |  $\frac{2*m*n}{(k+m+n)(k+m+n-1)}$| $\frac{n(n-1)}{(k+m+n)(k+m+n-1)}$|
 
@@ -85,7 +85,7 @@ The probability of these combinations leading to a recessive trait can be calcul
 <br>
 
 
-Now, we just have to sum the probability of each combination occuring by the probability of this combination leading to a recessive trait. 
+Now, we just have to sum the probability of each combination occurring by the probability of this combination leading to a recessive trait. 
 
 This leads to the following formula:
 
@@ -118,7 +118,7 @@ What happens if we want to solve a more complicated problem or if there are addi
 
 For example, what if we wanted to solve a question like "What's the probability of a heterozygous offspring?"
 
-We would need to derive another alogorithm for this similar, yet slightly different problem. 
+We would need to derive another algorithm for this similar, yet slightly different problem. 
 
 Algorithms work in certain cases, but also don't scale up if we add more constraints.
 
@@ -133,7 +133,7 @@ This solution is generic and can be used to ask more types of questions.
 
 For this method, we will make a fake population that follows the given parameters k, m, and n. 
 
-Specifically, we can make a vector of 1's, 2's, and 3's, representing the HH, Hh, and hh phenotypes, respectively.
+Specifically, we can make a vector of 1's, 2's, and 3's, representing the HH, Hh, and hh genotypes, respectively.
 
 In this vector, there will be k 1's, m 2's, and n 3's. 
 
@@ -155,7 +155,7 @@ This will lead to a probability of a dominant allele = 0.5.
 
 All of the probabilities will be accumulated throughout all of the simulations.
 
-At the end of the simulation, we can divide the sum of the probabilites by the total number of simulations.
+At the end of the simulation, we can divide the sum of the probabilities by the total number of simulations.
 
 This will get us the approximated number of individuals with a dominant phenotype.
 
@@ -169,7 +169,7 @@ The standard error for the estimate decreases as the number of simulations gets 
 
 The larger the number of iterations, the more likely that the final approximation will be similar both between simulations, as well as to the answer from the algorithm.
 
-It is important to keep in mind that both the algorithm and statistical sampling approaches  only provide approximations, as there will definetely be some unaccounted variation in a true biological population!
+It is important to keep in mind that both the algorithm and statistical sampling approaches only provide approximations, as there will definitely be some unaccounted variation in a true biological population!
 
 ```julia
 using StatsBase
