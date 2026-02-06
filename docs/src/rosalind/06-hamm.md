@@ -48,7 +48,7 @@ Another way we can approach this would be to use the for-loop.
 For loops are traditionally slower and clunkier (especially in Python).  
 However, Julia can often optimize for-loops like this,  
 which is one of the things that makes it so powerful.   
-It has multiple processing units that can run the same task parallelly. 
+It has multiple processing units that can run the same task in parallel. 
 
 We can calculate the Hamming Distance by looping over the characters in one of the strings   
 and checking if the corresponding character at the same index in the other string matches. 
@@ -104,8 +104,8 @@ bio_hamming[1]
 ```
 
 ```julia
-# Double check that we got the same values from both ouputs 
-@assert calcHamming(ex_seq_a, ex_seq_b) == bio_hamming[1]
+# Double check that we got the same values from both ouputs
+@assert hamming(ex_seq_a, ex_seq_b) == bio_hamming[1]
 ```
 
 
@@ -142,7 +142,7 @@ bio_hamming[1]
     AlignmentAnchor(17, 17, '=')]
  ```
 
- ### Distances.Jl method
+ ### Distances.jl method
 
  Another package that calculates the Hamming distance is the [Distances package](https://github.com/JuliaStats/Distances.jl).   
  We can call its `hamming` function on our two test sequences:
@@ -182,7 +182,7 @@ The BioAlignments method takes up a much larger amount of memory,
 and nearly three times as long to run.    
 However, it also generates an `AlignmentAnchor` data structure each time the function is called,   
 so this is not a fair comparison.     
-The `Distances` package is the winner here,which makes sense,    
+The `Distances` package is the winner here, which makes sense,    
 as it uses a vectorized approach.
 
 
