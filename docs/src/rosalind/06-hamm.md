@@ -55,8 +55,6 @@ ex_seq_a = "GAGCCTACTAACGGGAT"
 ex_seq_b = "CATCGTAATGACGGCCT"
 
 function hamming(seq_a, seq_b)
-    
-
     # check if the strings are empty
     if isempty(seq_a)
         throw(ErrorException("empty sequences"))
