@@ -42,7 +42,11 @@
     
     Pr(X=blue and Y=blue)+Pr(X=red and Y=blue), or 310+110=25.
 
-    Given: Three positive integers k, m, and n, 
+
+
+    Given: 
+    
+    Three positive integers k, m, and n, 
     
     representing a population containing k+m+n organisms: 
     
@@ -52,7 +56,7 @@
     
     Assume that any two organisms can mate.
 
-There are two main ways we can solve this problem: deriving an algorithm or simulation. 
+We will show two ways we can solve this problem: deriving an algorithm or using a statistical weighted probability approach. 
 
 ### Deriving an Algorithm
 
@@ -62,7 +66,7 @@ We could calculate the probability of a progeny having a dominant allele,
 
 but in this case, it is easier to calculate the likelihood of a progeny having the recessive phenotype.
 
- This is a relatively rarer event, and the calculation will be straightforward. 
+ This is a relatively rarer event, and the calculation will be less complicated. 
  
  We just have to subtract this probability from 1 to get the overall likelihood of having a progeny with a dominant trait. 
 
@@ -74,7 +78,7 @@ For all of these situations, we must calculate the probability of these mating c
 
 as well as the probability of these events leading to a progeny with a recessive trait. 
 
-To calculate this, we must calculate the probability of picking the first mating pair and then the second mating pair.
+First, we must calculate the probability of picking the first and second mate.
 
 For the combination Hh x Hh, this is $\frac{m}{(k+m+n)}$ multiplied by $\frac{(m-1)}{(k+m+n-1)}$.
 
@@ -84,11 +88,11 @@ For the combination Hh x Hh, this is $\frac{m}{(k+m+n)}$ multiplied by $\frac{(m
 
 A similar calculation is performed for the rest of the combinations. 
 
-However, it is important to note that the probability of selecting Hh x hh as a mating pair is $\frac{2*m*n}{(k+m+n)(k+m+n-1)}$,
+It is important to note that the probability of selecting Hh x hh as a mating pair is $\frac{2*m*n}{(k+m+n)(k+m+n-1)}$,
 
  as there are two ways to choose this combination.
  
-Hh x hh can be selected, as well as hh x Hh. Order matters!
+Hh x hh can be selected (where Hh is picked first), as well as hh x Hh. Order matters!
 
 | Probability of combination occuring | Hh x Hh | Hh x hh | hh x hh |
 | --- |---|---|---|
@@ -107,7 +111,7 @@ The probability of these combinations leading to a recessive trait can be calcul
 <br>
 
 
-Now, we just have to sum the multiply the probability of each combination occuring by the probability of this combination leading to a recessive trait. 
+Now, we just have to sum the probability of each combination occuring by the probability of this combination leading to a recessive trait. 
 
 This leads to the following formula:
 
@@ -121,7 +125,8 @@ Now that we've derived this formula, let's turn this into code!
 ```julia
 function mendel(k,m,n)
 
-    total = (k+m+n)*(k+m+n-1)
+    # denominator of the above fractions describing probability of different matches
+    total = (k+m+n)*(k+m+n-1) 
     return 1-(
         (0.25*m*(m-1))/total + 
         m*n/total + 
@@ -131,7 +136,7 @@ end
 mendel(2,2,2)
 ```
 
-Deriving and using this algorithm is a clean solution. 
+Deriving and using this algorithm works.
 
 However, it is also narrowly tailored to a specific problem. 
 
@@ -141,9 +146,9 @@ For example, what if we wanted to solve a question like "What's the probability 
 
 We would need to derive another alogorithm for this similar, yet slightly different problem. 
 
-Algorithms work in certain cases, but also don't scale up if we add another trait.
+Algorithms work in certain cases, but also don't scale up if we add more constraints.
 
-Another approach would be to use a statistics based solution. 
+Another approach would be to use a statistics-based solution. 
 
 For instance, we can use a simulation that can broadly calculate the likelihood of a given offspring based on a set of given probabilities.
 
@@ -152,3 +157,72 @@ This solution is generic and can be used to ask more types of questions.
 <br>
 
 ### Simulation Method
+
+For this method, we will make a fake population that follows the given parameters k, m, and n. 
+
+Specifically, we can make a vector of 1's, 2's, and 3's, representing the HH, Hh, and hh phenotypes, respectively.
+
+In this vector, there will be k 1's, m 2's, and n 3's. 
+
+Next, we'll make another vector that stores the probabilities of there being a dominant phenotype given the parental genotypes.
+
+This is calculated using Punnett Squares.
+
+For example, if HH mates with either [HH, Hh, hh], the probability of a dominant phenotype is 100%, leading to a vector [1, 1, 1].
+
+Now that these vectors have been created, we can begin the simulation.
+
+First, we will sample from the population to approximate the ratio of dominant phenotypes. 
+
+For each iteration, we will randomly pick two mates from the population.
+
+For example, 2 (Hh) and 3 (hh) is picked. 
+
+This will lead to a probability of a dominant allele = 0.5.
+
+All of the probabilities will be accumulated throughout all of the simulations.
+
+At the end of the simulation, we can divide the sum of the probabilites by the total number of simulations.
+
+This will get us the approximated number of individuals with a dominant phenotype.
+
+This method is unlikely to return exactly the same answer as the algorithm approach.
+
+Sampling is random, so we will get slightly different results each time we run the simulation (unless we set a seed).
+
+However, both methods will be very similar.
+
+The standard error for the estimate decreases as the number of simulations gets very large.
+
+The larger the number of iterations, the more likely that the final approximation will be similar both between simulations, as well as to the answer from the algorithm.
+
+It is important to keep in mind that both the algorithm and statistical sampling approaches  only provide approximations, as there will definetely be some unaccounted variation in a true biological population!
+
+```julia
+using StatsBase
+
+function mendel_sim(k, m, n; iterations=100000)
+    # Genotypes: 1=HH, 2=Hh, 3=hh
+    population = [fill(1, k); fill(2, m); fill(3, n)]
+
+    # Probability of dominant offspring given parent genotypes
+    # Index: offspring_prob[parent1, parent2]
+    offspring_prob = [
+        1.0   1.0   1.0;   # HH × (HH, Hh, hh)
+        1.0   0.75  0.5;   # Hh × (HH, Hh, hh)
+        1.0   0.5   0.0    # hh × (HH, Hh, hh)
+    ]
+
+    dominant_count = 0
+    dominant_count = sum(
+      offspring_prob[sample(population, 2; replace=false)...]
+      for i in 1:iterations
+  )
+
+    return dominant_count / iterations
+end
+
+mendel_sim(2, 2, 2)
+```
+
+In this case, both solutions return a value close to 0.783.
