@@ -81,7 +81,6 @@ hamming(ex_seq_a, ex_seq_b)
 ```
 
 
-
 ## BioAlignments method
 
 Instead of writing your own function, an alternative would be to use the readily-available Hamming Distance [function](https://github.com/BioJulia/BioAlignments.jl/blob/0f3cc5e1ac8b34fdde23cb3dca7afb9eb480322f/src/pairwise/algorithms/hamming_distance.jl#L4) in the `BioAlignments.jl` package. 
