@@ -11,4 +11,6 @@ JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
 XAM = "d759349c-bcba-11e9-07c2-5b90f8f05f7c"
 
+[compat]
 DocumenterVitepress = "=0.2.7"
+
