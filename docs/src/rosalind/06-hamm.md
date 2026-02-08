@@ -171,11 +171,11 @@ testseq1 = string(randdnaseq(100_000)) # this is defined in BioSequences
 testseq2 = string(randdnaseq(100_000))
 
 
-@benchmark hamming($testseq1, $testseq2)
+@benchmark hamming(\$testseq1, \$testseq2)
 
-@benchmark BioAlignments.hamming_distance(Int64, $testseq1, $testseq2)
+@benchmark BioAlignments.hamming_distance(Int64, \$testseq1, \$testseq2)
 
-@benchmark Distances.hamming($testseq1, $testseq2)
+@benchmark Distances.hamming(\$testseq1, \$testseq2)
 ```
 
 The BioAlignments method takes up a much larger amount of memory,  
