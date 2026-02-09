@@ -87,16 +87,21 @@ codon_table = Dict{String,Char}(
             "UUA" => 'L', "UUC" => 'F', "UUG" => 'L', "UUU" => 'F',
         )
 
+function translate_mrna(seq)
+    # check if starts with start codon
+    if startswith(seq, "AUG")
+        warn("this sequence does not start with AUG")
+    end
+    # check if string is divisible by three
+    if seq%3!=0
+        warn("this sequence is not divisible by 3")
+    end
+    # separate string into codons, map over with codon table
+    codons = (join(chunk) for chunk in Iterators.partition(seq, 3))
+    
+    protein = join(codon_table[c] for c in codons if haskey(codon_table, c))
 
-# check if starts with start codon
-
-# check if string is divisible by three
-
-# separate string into codons, map over with codon table
-
-# dealing with codons not in codon_table
-
-# return amino acid string
+    # return amino acid string
 
 ```
 
