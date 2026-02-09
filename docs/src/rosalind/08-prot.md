@@ -109,7 +109,7 @@ function translate_mrna(seq, codon_table)
     # return amino acid string
     return(aa_string)
 
-    end
+end
 
 translate_mrna(rna, codon_table)
 ```
