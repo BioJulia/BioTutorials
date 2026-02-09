@@ -27,37 +27,39 @@
     ```
 
 ### DIY solution
-Let's first tackle this problem by writing our own solution. 
+Let's tackle this problem by writing our own solution,  
+and then seeing how we can solve it with functions already available in BioJulia. 
 
 First, we will check that this is a coding region by verifying that the string starts with a start codon (`AUG`).   
 If not, we can still convert the string to protein,   
-but we'll throw an error.  
+but we'll throw a warning to alert the user.  
 There may be a frame shift,   
 in which case the returned translation will be incorrect.
 
 We'll also do a check that the string is divisible by three.   
 If it is not, this will likely mean that there was a mutation in the string 
 (addition or deletion).   
-Again, we can still convert as much of the the string as possible.   
-However, we should alert the user that this result may be incorrect!
+Again, we can still convert as much of the string as possible.   
+However, we should alert the user that the result may be incorrect!
 
-We need to convert this string of DNA to a string of proteins using the RNA codon table.  
+Next, we'll need to convert this string of mRNA to a string of proteins using the RNA codon table.  
 We can convert the RNA codon table into a dictionary,   
 which can map over our codons.
 Alternatively, we could also import this from the BioSequences package,   
 as this is already defined [there](https://github.com/BioJulia/BioSequences.jl/blob/b626dbcaad76217b248449e6aa2cc1650e95660c/src/geneticcode.jl#L132).
 
-Then, we'll break the string into codons by slicing at every three characters.     
-These codons can be matched to the strings into the RNA codon table to get the corresponding amino acid.   
-We'll append this amino acid to a string.
+Then, we'll break the string into codons by slicing it every three characters.     
+These codons can be matched against the RNA codon table to get the corresponding amino acid.   
+We'll join all these amino acids together to form the final string.
 
-We'll need to deal with any three-character strings that don't match a codon.   
-This likely means that there was a mutation in the input DNA string! 
+Lastly, we'll need to deal with any three-character strings that don't match a codon.   
+This likely means that there was a mutation in the input mRNA string!   
 If we get a codon that doesn't match,   
 we can return "X" for that amino acid,   
 and continue translating the rest of the string.  
-However, if we get a string X's,   
-that will definitely signal to us that there was some kind of frame shift. 
+If we get a string of X's,   
+that should signal to the user that there was some kind of frame shift. 
+
 
 Now that we have established an approach,  
 let's turn this into code!
@@ -68,7 +70,7 @@ using Test
 rna = "AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA"
 
 # note: this can be created by hand
-# or it can be accessed using 
+# or it can be accessed from the BioSequences package (see link above)
 codon_table = Dict{String,Char}(
             "AAA" => 'K', "AAC" => 'N', "AAG" => 'K', "AAU" => 'N',
             "ACA" => 'T', "ACC" => 'T', "ACG" => 'T', "ACU" => 'T',
@@ -127,21 +129,24 @@ translate(rna"AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA")
 
 ```
 
-This function is straightforward to use.  
-However, there are also additional parameters for us to use.
+This function is straightforward to use,
+especially in the case where the input mRNA has no ambiguous codons 
+and is divisible by 3.   
+However, there are also additional parameters  available for handling other types of strings.
 
 For instance, the function defaults to using the standard genetic code.  
 However, if a user wishes to use another codon chart  
 (for example, yeast or invertebrate),   
 there are others available on [BioSequences.jl](https://github.com/BioJulia/BioSequences.jl/blob/b626dbcaad76217b248449e6aa2cc1650e95660c/src/geneticcode.jl#L130) to choose from. 
 
-By default `allow_ambiguous_codons` is `true`.   
-However, if a user is giving the function a mRNA string with ambiguous codons that may not be found in the standard genetic code,  
-these codons will be translated to the most narrow amino acid which covers all
+By default, `allow_ambiguous_codons` is `true`.   
+If a user gives the function a mRNA string with ambiguous codons that may not be found in the standard genetic code,  
+these codons will be translated to the narrowest amino acid which covers all
 non-ambiguous codons encompassed by the ambiguous codon.  
-By default, ambiguous codons will cause an error.
+If this option is turned off,  
+ambiguous codons will cause an error.
 
 Additionally, `alternative_start` is `false` by default.  
-If set to true, the starting codon will be Methionine regardless of the starting codon.
+If set to true, the starting amino acid will be Methionine regardless of what the first codon is.
 
 Similar to our function, the BioSequences function also throws an error if the input mRNA string is not divisible by 3.
