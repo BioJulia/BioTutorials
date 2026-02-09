@@ -63,6 +63,7 @@ Now that we have established an approach,
 let's turn this into code!
 
 ```julia
+using Test
 
 rna = "AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA"
 
@@ -87,23 +88,28 @@ codon_table = Dict{String,Char}(
             "UUA" => 'L', "UUC" => 'F', "UUG" => 'L', "UUU" => 'F',
         )
 
-function translate_mrna(seq)
+function translate_mrna(seq, codon_table)
+    
     # check if starts with start codon
-    if startswith(seq, "AUG")
-        warn("this sequence does not start with AUG")
+    if ! startswith(seq, "AUG")
+        @warn "this sequence does not start with AUG"
     end
     # check if string is divisible by three
-    if seq%3!=0
-        warn("this sequence is not divisible by 3")
+    if rem(length(seq), 3) != 0
+        @warn "this sequence is not divisible by 3"
     end
     # separate string into codons
     codons = (join(chunk) for chunk in Iterators.partition(seq, 3))
 
-    # map over codons with codon table
+    # map over codons with codon table, return X if not in codon_table
     aa_string = join(get(codon_table, c, "X") for c in codons)
 
     # return amino acid string
     return(aa_string)
+
+    end
+
+translate_mrna(rna, codon_table)
 ```
 
 
