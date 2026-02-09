@@ -96,13 +96,14 @@ function translate_mrna(seq)
     if seq%3!=0
         warn("this sequence is not divisible by 3")
     end
-    # separate string into codons, map over with codon table
+    # separate string into codons
     codons = (join(chunk) for chunk in Iterators.partition(seq, 3))
-    
-    protein = join(codon_table[c] for c in codons if haskey(codon_table, c))
+
+    # map over codons with codon table
+    aa_string = join(get(codon_table, c, "X") for c in codons)
 
     # return amino acid string
-
+    return(aa_string)
 ```
 
 
