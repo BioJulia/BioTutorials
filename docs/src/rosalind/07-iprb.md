@@ -174,28 +174,42 @@ It is important to keep in mind that both the algorithm and statistical sampling
 ```julia
 using StatsBase
 
-function mendel_sim(k, m, n; iterations=100000)
-    # Genotypes: 1=HH, 2=Hh, 3=hh
-    population = [fill(1, k); fill(2, m); fill(3, n)]
+# Probability of dominant offspring given parent genotypes
+# Index: offspring_prob[parent1, parent2]
+# Genotypes: 1=HH, 2=Hh, 3=hh
 
-    # Probability of dominant offspring given parent genotypes
-    # Index: offspring_prob[parent1, parent2]
-    offspring_prob = [
+ex_offspring_prob = [
         1.0   1.0   1.0;   # HH × (HH, Hh, hh)
         1.0   0.75  0.5;   # Hh × (HH, Hh, hh)
         1.0   0.5   0.0    # hh × (HH, Hh, hh)
     ]
 
-    dominant_count = 0
-    dominant_count = sum(
-      offspring_prob[sample(population, 2; replace=false)...]
-      for i in 1:iterations
-  )
+function mendel_sim(k, m, n, offspring_prob; iterations=100000)
+    # Genotypes: 1=HH, 2=Hh, 3=hh
+    population = [fill(1, k); fill(2, m); fill(3, n)]
 
-    return dominant_count / iterations
+    total_pop = k+m+n
+    wts = [k/total_pop, m/total_pop, n/total_pop]
+
+    # samples two mates from the vector [1,2,3] with probability weights given by wts
+
+    # then sum the probability of each offspring having a dominant phenotype
+    # sum across all simulations
+    sum(1:iterations) do _
+        (i,j) = sample([1,2,3], weights(wts), 2)
+        offspring_prob[i,j]
+    end / iterations
 end
 
-mendel_sim(2, 2, 2)
+mendel_sim(2, 2, 2, ex_offspring_prob)
 ```
 
-In this case, both solutions return a value close to 0.783.
+In the function above, the user provides the parameter `offspring_prob`.   
+If the user wanted to answer a slightly different question with different probability weights,  
+all that would be needed is a different input vector. 
+This allows the user to solve a wider variety of questions.
+
+However, this function does assume that there are only 3 phenotypes, which limits the situations it can be applied towards.  
+
+This solution returns a value closer to 0.75,   
+while the first one returns a value close to 0.783.
