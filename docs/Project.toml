@@ -13,3 +13,4 @@ XAM = "d759349c-bcba-11e9-07c2-5b90f8f05f7c"
 
 [compat]
 DocumenterVitepress = "=0.2.7"
+
