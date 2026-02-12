@@ -71,7 +71,7 @@ rna = "AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA"
 
 # note: this can be created by hand
 # or it can be accessed from the BioSequences package (see link above)
-codon_table = Dict{String,Char}(
+codon_table = Dict(
             "AAA" => 'K', "AAC" => 'N', "AAG" => 'K', "AAU" => 'N',
             "ACA" => 'T', "ACC" => 'T', "ACG" => 'T', "ACU" => 'T',
             "AGA" => 'R', "AGC" => 'S', "AGG" => 'R', "AGU" => 'S',
@@ -101,13 +101,14 @@ function translate_mrna(seq, codon_table)
         @warn "this sequence is not divisible by 3"
     end
     # separate string into codons
+    # this makes a generator, which allocates less memory than a vector
     codons = (join(chunk) for chunk in Iterators.partition(seq, 3))
 
     # map over codons with codon table, return X if not in codon_table
     aa_string = join(get(codon_table, c, "X") for c in codons)
 
     # return amino acid string
-    return(aa_string)
+    return aa_string 
 
 end
 
@@ -123,7 +124,7 @@ established function from the BioSequences package in BioJulia.
 ```julia
 using BioSequences
 
-rna =("AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA") 
+rna = "AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA" 
 
 translate(rna"AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA")
 
