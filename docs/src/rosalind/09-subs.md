@@ -36,13 +36,14 @@
     `2 4 10`
 
 ### Handwritten solution
-The clunkiest solution uses a for-loop.   
+Let's start off with the most verbose solution.  
 We can loop over every character within the input string and  
 check if we can find the substring in the subsequent characters.  
 
+In the first solution,   
+we will check each index for an exact match to the substring we are searching for. 
 
 ```julia
-
 dataset = "GATATATGCATATACTTATAT"
 search_string = "ATAT"
 
@@ -58,11 +59,11 @@ function haystack(substring, string)
     end
 
     output = []
-
     for i in eachindex(string)
         # check if first letter of string matches character at the index
         if string[i] == substring[1]
-            # check if full 
+            # check if full substring matches at index
+            # make sure not to search index past string 
             if i + length(substring) - 1 <= length(string) && string[i:i+length(substring)-1] == substring
                 push!(output, i)
             end
@@ -73,7 +74,17 @@ end
 
 haystack(search_string, dataset)
 ```
-We can also use the [`findnext`](https://docs.julialang.org/en/v1/base/strings/#Base.findnext) function in Julia so that we don't have to loop through every character in the string. 
+We can also use the [`findnext`](https://docs.julialang.org/en/v1/base/strings/#Base.findnext) function in Julia.   
+
+There are similar `findfirst` and `findlast` functions,   
+but since we want to find all matches,  
+we will use `findnext`.
+
+Currently, there isn't a `findall` function that allows us to avoid a loop.  
+We'll still also loop over every character in the string,   
+as there could be overlapping substrings.
+
+
 
 ```julia
 function haystack_findnext(substring, string)
@@ -108,6 +119,25 @@ end
 haystack_findnext(search_string, dataset)
 ```
 
+Lastly, we can also use Regex's search function,
+which produces quite the elegant solution!
+
+
+```julia
+function haystack_regex(substring, string)
+    if isempty(substring) || isempty(string)
+        throw(ErrorException("emptysequences"))                            
+    end                                                                                                                             
+    if !occursin(substring, string)            
+          return[]    
+    end    
+    
+    return [m.offset for m in eachmatch(Regex(substring), string, overlap=true) ] 
+end
+
+haystack_findnext(search_string, dataset)
+```
+
 ### Biojulia solution
 
 Lastly, we can leverage some functions in the Kmers Biojulia package to help us!
@@ -116,3 +146,5 @@ Lastly, we can leverage some functions in the Kmers Biojulia package to help us!
 
 
 ```
+
+
