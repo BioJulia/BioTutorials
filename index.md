@@ -2,4 +2,4 @@
 
 Tutorials for doing bioinformatics with Julia and the BioJulia ecosystem.
 
-{{list_posts}}
+{{list_series}}
