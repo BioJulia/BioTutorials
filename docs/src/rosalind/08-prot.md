@@ -115,16 +115,32 @@ end
 translate_mrna(rna, codon_table)
 ```
 
+Let's test that our function correctly deals with non-conventional mRNA strings. 
+
+If we change the input string to include a codon that is not present in the codon table,   
+we should get a warning.  
+The codon should also be translated to an amino acid "X."  
+```julia
+translate_mrna("AUGNCG", codon_table)
+```
+
+Next, let's confirm that an input mRNA strand with a length that is not divisible by 3 produces the correct warning.
+
+```julia
+translate_mrna("AUGGC", codon_table)
+```
+
+
+
+
 
 ### BioSequences Solution
 
-An alternative way to approach this problem would be to leverage an already written,    
-established function from the BioSequences package in BioJulia.
+An alternative way to approach this problem would be to leverage 
+an established function from the BioSequences package in BioJulia.
 
 ```julia
 using BioSequences
-
-rna = "AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA" 
 
 translate(rna"AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA")
 
@@ -133,12 +149,21 @@ translate(rna"AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA")
 This function is straightforward to use,
 especially in the case where the input mRNA has no ambiguous codons 
 and is divisible by 3.   
-However, there are also additional parameters  available for handling other types of strings.
+However, there are also additional parameters available for handling other types of strings.
 
 For instance, the function defaults to using the standard genetic code.  
 However, if a user wishes to use another codon chart  
 (for example, yeast or invertebrate),   
 there are others available on [BioSequences.jl](https://github.com/BioJulia/BioSequences.jl/blob/b626dbcaad76217b248449e6aa2cc1650e95660c/src/geneticcode.jl#L130) to choose from. 
+
+
+For example, we can translate the same input mRNA string. 
+using the vertebrate mitochondrial genetic code! 
+
+```julia
+translate(rna"AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA", code=BioSequences.vertebrate_mitochondrial_genetic_code) 
+
+```
 
 By default, `allow_ambiguous_codons` is `true`.   
 If a user gives the function a mRNA string with ambiguous codons that may not be found in the standard genetic code,  
@@ -147,7 +172,35 @@ non-ambiguous codons encompassed by the ambiguous codon.
 If this option is turned off,  
 ambiguous codons will cause an error.
 
+For example, the input mRNA string below includes the nucleotides `NCG`,  
+which is an ambiguous codon.
+This could potentially code for `ACG` (Threonine),   
+`CCG` (Proline), `UCG` (Serine), `GCG` (Alanine),    
+each of which would code for four different amino acids.  
+
+`allow_ambiguous_codons` is `true` by default,    
+so this mRNA strand is translated to `MX`.
+
+```julia
+translate(rna"AUGNCG")
+```
+
+However, if `allow_ambiguous_codons` is changed to `false`,   
+an error is thrown, as no ambiguous codons are allowed in the result. 
+
+```julia
+translate(rna"AUGNCG", allow_ambiguous_codons=false)
+```
+
 Additionally, `alternative_start` is `false` by default.  
 If set to true, the starting amino acid will be Methionine regardless of what the first codon is.
 
+```julia
+translate(rna"AUCGAC", alternative_start = true)
+```
+
 Similar to our function, the BioSequences function also throws an error if the input mRNA string is not divisible by 3.
+
+```julia
+translate(rna"AUGGA")
+```
