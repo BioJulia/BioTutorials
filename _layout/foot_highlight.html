@@ -1,0 +1,10 @@
+<script src="/libs/highlight/julia-custom.min.js"></script>
+<script>
+  // Configure highlight.js to recognize Xranklin's class format
+  document.querySelectorAll('pre code').forEach((el) => {
+    if (el.className && !el.className.startsWith('language-')) {
+      el.classList.add('language-' + el.className.split(' ')[0]);
+    }
+  });
+  hljs.highlightAll();
+</script>

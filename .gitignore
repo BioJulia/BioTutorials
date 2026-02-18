@@ -1,3 +1,7 @@
-.ipynb_checkpoints
+__site
+__cache
+node_modules/
 Manifest.toml
+Claude.md
 .envrc
+.DS_Store
