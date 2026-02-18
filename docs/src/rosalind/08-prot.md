@@ -157,7 +157,7 @@ However, if a user wishes to use another codon chart
 there are others available on [BioSequences.jl](https://github.com/BioJulia/BioSequences.jl/blob/b626dbcaad76217b248449e6aa2cc1650e95660c/src/geneticcode.jl#L130) to choose from. 
 
 
-For example, we can translate the same input mRNA string. 
+For example, we can translate the same input mRNA string  
 using the vertebrate mitochondrial genetic code! 
 
 ```julia
@@ -167,7 +167,8 @@ translate(rna"AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA", code=BioSequ
 
 By default, `allow_ambiguous_codons` is `true`.   
 If a user gives the function a mRNA string with ambiguous codons that may not be found in the standard genetic code,  
-these codons will be translated to the narrowest amino acid which covers all
+these codons will be translated to the narrowest amino acid   
+which covers all
 non-ambiguous codons encompassed by the ambiguous codon.  
 If this option is turned off,  
 ambiguous codons will cause an error.
