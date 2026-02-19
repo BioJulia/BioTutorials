@@ -1,9 +1,6 @@
-name = "BioTutorials"
-uuid = "33e7be4a-8e14-4baf-892c-424bb664d307"
-authors = ["Kevin Bonham (@kescobo)", "Kenta Sato (@bicycle1885)"]
-title = "BioTutorials"
-version = "0.1.0"
-
 [deps]
-BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Hyperscript = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+NodeJS = "2bd173c7-0d6d-553b-b6af-13a54713934c"
+Xranklin = "558449b0-171e-4e1f-900f-d076a5ddf486"

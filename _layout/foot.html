@@ -1,0 +1,53 @@
+<!-- Content ends here -->
+  </main>
+  {{ if hasmath }}
+    {{ insert foot_katex.html }}
+  {{ end }}
+  {{ if hascode }}
+    {{ insert foot_highlight.html }}
+  {{ end }}
+  <script>
+    // Theme toggle functionality
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      if (!toggle) return;
+
+      function getSystemTheme() {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+      function getCurrentTheme() {
+        const stored = localStorage.getItem('theme');
+        if (stored) return stored;
+        return getSystemTheme();
+      }
+
+      function updateHighlightTheme(isDark) {
+        const lightStyle = document.getElementById('hljs-light');
+        const darkStyle = document.getElementById('hljs-dark');
+        if (lightStyle && darkStyle) {
+          lightStyle.disabled = isDark;
+          darkStyle.disabled = !isDark;
+        }
+      }
+
+      toggle.addEventListener('click', function() {
+        const current = getCurrentTheme();
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateHighlightTheme(next === 'dark');
+      });
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+          // Only update if user hasn't manually set a preference
+          document.documentElement.removeAttribute('data-theme');
+          updateHighlightTheme(e.matches);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

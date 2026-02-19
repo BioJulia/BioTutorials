@@ -1,0 +1,12 @@
+<link rel="stylesheet" href="/libs/highlight/styles/github.min.css" id="hljs-light">
+<link rel="stylesheet" href="/libs/highlight/styles/github-dark.min.css" id="hljs-dark" disabled>
+<script>
+  // Set initial highlight theme based on current theme
+  (function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.getElementById('hljs-light').disabled = isDark;
+    document.getElementById('hljs-dark').disabled = !isDark;
+  })();
+</script>
