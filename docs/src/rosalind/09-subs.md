@@ -40,7 +40,7 @@ Let's start off with the most verbose solution.
 We can loop over every character within the input string and  
 check if we can find the substring in the subsequent characters.  
 
-In the first solution,   
+In other words,   
 we will check each index for an exact match to the substring we are searching for. 
 
 ```julia
@@ -74,20 +74,20 @@ end
 
 haystack(search_string, dataset)
 ```
-We can also use the [`findnext`](https://docs.julialang.org/en/v1/base/strings/#Base.findnext) function in Julia.   
 
-There are similar `findfirst` and `findlast` functions,   
-but since we want to find all matches,  
-we will use `findnext`.
+### Biojulia solution
 
-Currently, there isn't a `findall` function that allows us to avoid a loop.  
-We'll still also loop over every character in the string,   
-as there could be overlapping substrings.
+The BioSequences package has a helpful function [`findall`](https://github.com/BioJulia/BioSequences.jl/blob/b626dbcaad76217b248449e6aa2cc1650e95660c/src/BioSequences.jl#L261-L316), 
+which returns the indices of all exact string matches.   
 
+It isn't included in the documentation about exact string search [here](https://biojulia.dev/BioSequences.jl/v2.0/sequence_search/#Exact-search-1),   
+but the function exists!  
+
+BioSequences has other helpful exact string search functions like `findfirst`, `firstnext`, and `findlast`.   
 
 
 ```julia
-function haystack_findnext(substring, string)
+function haystack_findall(substring, string)
     # check if the strings are empty
     if isempty(substring) || isempty(string)
         throw(ErrorException("empty sequences"))
@@ -98,29 +98,19 @@ function haystack_findnext(substring, string)
         return []
     end
 
-    output = []
-    i = 1
-    # while index is less than the length of string
-    while i < length(string)
-        result = findnext(substring, string, i)
-        if result == nothing
-            break
-        end
-
-        if result != nothing
-            push!(output, first(result))
-            i = first(result) + 1
-        end
-    end
-    return output
+    matches = findall(ExactSearchQuery(dna"$substring"),dna"$string")
+    return first.(matches)
 end
     
 
-haystack_findnext(search_string, dataset)
+haystack_findall(search_string, dataset)
 ```
+### Regex solution
 
-Lastly, we can also use Regex's search function,
-which produces quite the elegant solution!
+Lastly, we can also use Regex's search function.   
+Here the "pattern" we are searching for is the exact string.   
+This is the a great solution if we wanted to look for patterns of more complicated strings,   
+but it works for exact matches as well!
 
 
 ```julia
@@ -138,13 +128,5 @@ end
 haystack_findnext(search_string, dataset)
 ```
 
-### Biojulia solution
-
-Lastly, we can leverage some functions in the Kmers Biojulia package to help us!
-
-```julia
-
-
-```
 
 
