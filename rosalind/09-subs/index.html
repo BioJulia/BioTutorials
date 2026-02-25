@@ -13,7 +13,19 @@
     })();
   </script>
   
-  
+   <link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github.min.css" id="hljs-light">
+<link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github-dark.min.css" id="hljs-dark" disabled>
+<script>
+  // Set initial highlight theme based on current theme
+  (function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.getElementById('hljs-light').disabled = isDark;
+    document.getElementById('hljs-dark').disabled = !isDark;
+  })();
+</script>
+   
   <link rel="stylesheet" href="/BioTutorials/css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +36,7 @@
 <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/BioTutorials/assets/apple-touch-icon.png">
 
 
-   <title>BioJulia Tutorials - BioJulia</title>  
+   <title>Finding a Motif in DNA - BioJulia</title>  
 </head>
 <body>
   <header class="site-header">
@@ -85,8 +97,104 @@
   <main class="franklin-content">
 
 <div class="franklin-content" >
-  <h1 id="biojulia_tutorials" ><a href="#biojulia_tutorials"> BioJulia Tutorials</a></h1><p>Tutorials for doing bioinformatics with Julia and the BioJulia ecosystem.</p>
-<article class="series-card"><h2><a href="/BioTutorials/rosalind/">Getting Started with Rosalind.info Problems</a></h2><p class="description">Step-by-step solutions to Rosalind.info bioinformatics problems using base Julia and the BioJulia ecosystem.</p><p class="post-meta">9 tutorials</p></article>
+  <h1 id="finding_a_motif_in_dna" ><a href="#finding_a_motif_in_dna"> Finding a Motif in DNA</a></h1><p>🤔 <a href="https://rosalind.info/problems/subs/">Problem link</a></p>
+<p>!!! warning "The Problem"</p>
+<p>    Given two strings s and t, 
+    t is a substring of s if t is contained as a contiguous collection of symbols in s 
+    (as a result, t must be no longer than s).</p>
+<p>    The position of a symbol in a string is the total number of symbols found to its left, including itself.    
+    (e.g., the positions of all occurrences of 'U' in "AUGCUUCAGAAAGGUCUUACG" are 2, 5, 6, 15, 17, and 18).   
+    The symbol at position i of s is denoted by s[i].</p>
+<p>    A substring of s can be represented as s[j:k],   
+    where j and k represent the starting and ending positions of the substring in s;    
+    for example, if s= "AUGCUUCAGAAAGGUCUUACG",   
+    then s[2:5]= "UGCU".</p>
+<p>    The location of a substring s[j:k]is its beginning position j;   
+    note that t will have multiple locations in s
+    if it occurs more than once as a substring of s.
+    (see the Sample below).</p>
+<p>    Given: 
+    Two DNA strings s and t.  
+    (each of length at most 1 kbp).</p>
+<p>    Return: 
+    All locations of t as a substring of s.  </p>
+<p>    Sample Dataset
+    <code>GATATATGCATATACTTATAT</code></p>
+<p>    Sample Output
+    <code>2 4 10</code></p>
+<h3 id="handwritten_solution" ><a href="#handwritten_solution"> Handwritten solution</a></h3><p>Let's start off with the most verbose solution.  
+We can loop over every character within the input string and  
+check if we can find the substring in the subsequent characters.  </p>
+<p>In other words,   
+we will check each index for an exact match to the substring we are searching for. </p>
+<pre><code class="julia">dataset = &quot;GATATATGCATATACTTATAT&quot;
+search_string = &quot;ATAT&quot;
+
+function haystack(substring, string)
+    # check if the strings are empty
+    if isempty(substring) || isempty(string)
+        throw(ErrorException(&quot;empty sequences&quot;))
+    end
+
+    # check that string exists in data
+    if ! occursin(substring, string)
+        return []
+    end
+
+    output = []
+    for i in eachindex(string)
+        # check if first letter of string matches character at the index
+        if string[i] == substring[1]
+            # check if full substring matches at index
+            # make sure not to search index past string 
+            if i + length(substring) - 1 &lt;= length(string) &amp;&amp; string[i:i+length(substring)-1] == substring
+                push!(output, i)
+            end
+        end
+    end
+    return output
+end
+
+haystack(search_string, dataset)</code></pre>
+<h3 id="biojulia_solution" ><a href="#biojulia_solution"> Biojulia solution</a></h3><p>The BioSequences package has a helpful function <a href="https://github.com/BioJulia/BioSequences.jl/blob/b626dbcaad76217b248449e6aa2cc1650e95660c/src/BioSequences.jl#L261-L316"><code>findall</code></a>, 
+which returns the indices of all exact string matches.   </p>
+<p>It isn't included in the documentation about exact string search <a href="https://biojulia.dev/BioSequences.jl/v2.0/sequence_search/#Exact-search-1">here</a>,   
+but the function exists!  </p>
+<p>BioSequences has other helpful exact string search functions like <code>findfirst</code>, <code>firstnext</code>, and <code>findlast</code>.   </p>
+<pre><code class="julia">function haystack_findall(substring, string)
+    # check if the strings are empty
+    if isempty(substring) || isempty(string)
+        throw(ErrorException(&quot;empty sequences&quot;))
+    end
+
+    # check that string exists in data
+    if ! occursin(substring, string)
+        return []
+    end
+
+    matches = findall(ExactSearchQuery(dna&quot;$substring&quot;),dna&quot;$string&quot;)
+    return first.(matches)
+end
+    
+
+haystack_findall(search_string, dataset)</code></pre>
+<h3 id="regex_solution" ><a href="#regex_solution"> Regex solution</a></h3><p>Lastly, we can also use Regex's search function.   
+Here the "pattern" we are searching for is the exact string.   
+This is the a great solution if we wanted to look for patterns of more complicated strings,   
+but it works for exact matches as well!</p>
+<pre><code class="julia">function haystack_regex(substring, string)
+    if isempty(substring) || isempty(string)
+        throw(ErrorException(&quot;emptysequences&quot;))                            
+    end                                                                                                                             
+    if !occursin(substring, string)            
+          return[]    
+    end    
+    
+    return [m.offset for m in eachmatch(Regex(substring), string, overlap=true) ] 
+end
+
+haystack_findnext(search_string, dataset)</code></pre>
+
   <footer class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> BioJulia Developers
    · Last modified: 
@@ -98,6 +206,18 @@
 
   </main>
   
+  
+    <script src="/BioTutorials/libs/highlight/julia-custom.min.js"></script>
+<script>
+  // Configure highlight.js to recognize Xranklin's class format
+  document.querySelectorAll('pre code').forEach((el) => {
+    if (el.className && !el.className.startsWith('language-')) {
+      el.classList.add('language-' + el.className.split(' ')[0]);
+    }
+  });
+  hljs.highlightAll();
+</script>
+
   
   <script>
     // Theme toggle functionality

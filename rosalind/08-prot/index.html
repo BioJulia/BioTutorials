@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // Set theme immediately to prevent flash
+    (function() {
+      const stored = localStorage.getItem('theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
+  
+   <link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github.min.css" id="hljs-light">
+<link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github-dark.min.css" id="hljs-dark" disabled>
+<script>
+  // Set initial highlight theme based on current theme
+  (function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.getElementById('hljs-light').disabled = isDark;
+    document.getElementById('hljs-dark').disabled = !isDark;
+  })();
+</script>
+   
+  <link rel="stylesheet" href="/BioTutorials/css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<link rel="icon" type="image/png" sizes="192x192" href="/BioTutorials/assets/favicon.png">
+<link rel="shortcut icon" href="/BioTutorials/assets/favicon.ico">
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="/BioTutorials/assets/apple-touch-icon.png">
+
+
+   <title>Translating RNA into Protein - BioJulia</title>  
+</head>
+<body>
+  <header class="site-header">
+  <div class="header-content">
+    <div class="header-left">
+      <a href="https://biojulia.dev/BioTutorials" class="logo-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136.48101 51.472999" height="32" aria-label="BioJulia">
+          <g id="bubble-helix">
+            <circle cx="5.9792" cy="20.3" r="5.9792" fill="#945bb0"/>
+            <circle cx="21.317" cy="39.5" r="4.9393" fill="#4266d5"/>
+            <circle cx="16.378" cy="11.7" r="4.9393" fill="#c93d39"/>
+            <circle cx="35.095" cy="35.9" r="5.9792" fill="#945bb0"/>
+            <circle cx="47.184" cy="23.8" r="7.409" fill="#4266d5"/>
+            <circle cx="28.986" cy="9.7" r="4.5494" fill="#3b972e"/>
+            <circle cx="89.428" cy="46.5" r="4.9393" fill="#c93d39"/>
+            <circle cx="71.62" cy="5.6" r="5.5892" fill="#945bb0"/>
+            <circle cx="121.01" cy="15.5" r="5.5892" fill="#c93d39"/>
+            <circle cx="59.662" cy="30.3" r="2.4697" fill="#4266d5"/>
+            <circle cx="103.6" cy="19.9" r="3.2496" fill="#c93d39"/>
+            <circle cx="123.61" cy="36.5" r="2.7296" fill="#4266d5"/>
+            <circle cx="127.64" cy="5.2" r="3.8995" fill="#3b972e"/>
+            <circle cx="132.58" cy="39.2" r="3.8995" fill="#945bb0"/>
+            <circle cx="67.591" cy="37.4" r="3.3795" fill="#3b972e"/>
+            <circle cx="95.017" cy="13.9" r="4.2894" fill="#4266d5"/>
+            <circle cx="77.729" cy="42.9" r="3.8995" fill="#945bb0"/>
+            <circle cx="102.56" cy="42.0" r="5.8492" fill="#4266d5"/>
+            <circle cx="113.6" cy="28.8" r="6.7591" fill="#3b972e"/>
+            <circle cx="57.582" cy="11.0" r="6.3691" fill="#c93d39"/>
+            <circle cx="38.735" cy="14.8" r="3.3795" fill="#c93d39"/>
+            <circle cx="84.618" cy="7.9" r="5.3293" fill="#3b972e"/>
+          </g>
+        </svg>
+        <span>BioTutorials</span>
+      </a>
+    </div>
+    <nav class="header-nav">
+      <a href="/BioTutorials/">Tutorials</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+  <main class="franklin-content">
+
+<div class="franklin-content" >
+  <h1 id="translating_rna_into_protein" ><a href="#translating_rna_into_protein"> Translating RNA into Protein</a></h1><p>🤔 <a href="https://rosalind.info/problems/prot/">Problem link</a></p>
+<p>!!! warning "The Problem"</p>
+<p>    The 20 commonly occurring amino acids are abbreviated by using 20 letters from the English alphabet.  
+    (all letters except for B, J, O, U, X, and Z).   
+    Protein strings are constructed from these 20 symbols.   
+    Henceforth, the term genetic string will incorporate protein strings along with DNA strings and RNA strings.  </p>
+<p>    The RNA codon table dictates the details regarding the encoding of specific codons into the amino acid alphabet.</p>
+<p>    Given: An RNA string s corresponding to a strand of mRNA.  
+    (of length at most 10 kbp).</p>
+<p>    Return: The protein string encoded by s.</p>
+<p>    Sample Dataset
+    </p>
+<pre><code class="julia">    AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA
+    </code></pre>
+<p>    Sample Output
+    </p>
+<pre><code class="julia">    MAMAPRTEINSTRING
+    </code></pre>
+<h3 id="diy_solution" ><a href="#diy_solution"> DIY solution</a></h3><p>Let's tackle this problem by writing our own solution,  
+and then seeing how we can solve it with functions already available in BioJulia. </p>
+<p>First, we will check that this is a coding region by verifying that the string starts with a start codon (<code>AUG</code>).   
+If not, we can still convert the string to protein,   
+but we'll throw a warning to alert the user.  
+There may be a frame shift,   
+in which case the returned translation will be incorrect.</p>
+<p>We'll also do a check that the string is divisible by three.   
+If it is not, this will likely mean that there was a mutation in the string 
+(addition or deletion).   
+Again, we can still convert as much of the string as possible.   
+However, we should alert the user that the result may be incorrect!</p>
+<p>Next, we'll need to convert this string of mRNA to a string of proteins using the RNA codon table.  
+We can convert the RNA codon table into a dictionary,   
+which can map over our codons.
+Alternatively, we could also import this from the BioSequences package,   
+as this is already defined <a href="https://github.com/BioJulia/BioSequences.jl/blob/b626dbcaad76217b248449e6aa2cc1650e95660c/src/geneticcode.jl#L132">there</a>.</p>
+<p>Then, we'll break the string into codons by slicing it every three characters.     
+These codons can be matched against the RNA codon table to get the corresponding amino acid.   
+We'll join all these amino acids together to form the final string.</p>
+<p>Lastly, we'll need to deal with any three-character strings that don't match a codon.   
+This likely means that there was a mutation in the input mRNA string!   
+If we get a codon that doesn't match,   
+we can return "X" for that amino acid,   
+and continue translating the rest of the string.  
+If we get a string of X's,   
+that should signal to the user that there was some kind of frame shift. </p>
+<p>Now that we have established an approach,  
+let's turn this into code!</p>
+<pre><code class="julia">using Test
+
+rna = &quot;AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA&quot;
+
+# note: this can be created by hand
+# or it can be accessed from the BioSequences package (see link above)
+codon_table = Dict(
+            &quot;AAA&quot; =&gt; 'K', &quot;AAC&quot; =&gt; 'N', &quot;AAG&quot; =&gt; 'K', &quot;AAU&quot; =&gt; 'N',
+            &quot;ACA&quot; =&gt; 'T', &quot;ACC&quot; =&gt; 'T', &quot;ACG&quot; =&gt; 'T', &quot;ACU&quot; =&gt; 'T',
+            &quot;AGA&quot; =&gt; 'R', &quot;AGC&quot; =&gt; 'S', &quot;AGG&quot; =&gt; 'R', &quot;AGU&quot; =&gt; 'S',
+            &quot;AUA&quot; =&gt; 'I', &quot;AUC&quot; =&gt; 'I', &quot;AUG&quot; =&gt; 'M', &quot;AUU&quot; =&gt; 'I',
+            &quot;CAA&quot; =&gt; 'Q', &quot;CAC&quot; =&gt; 'H', &quot;CAG&quot; =&gt; 'Q', &quot;CAU&quot; =&gt; 'H',
+            &quot;CCA&quot; =&gt; 'P', &quot;CCC&quot; =&gt; 'P', &quot;CCG&quot; =&gt; 'P', &quot;CCU&quot; =&gt; 'P',
+            &quot;CGA&quot; =&gt; 'R', &quot;CGC&quot; =&gt; 'R', &quot;CGG&quot; =&gt; 'R', &quot;CGU&quot; =&gt; 'R',
+            &quot;CUA&quot; =&gt; 'L', &quot;CUC&quot; =&gt; 'L', &quot;CUG&quot; =&gt; 'L', &quot;CUU&quot; =&gt; 'L',
+            &quot;GAA&quot; =&gt; 'E', &quot;GAC&quot; =&gt; 'D', &quot;GAG&quot; =&gt; 'E', &quot;GAU&quot; =&gt; 'D',
+            &quot;GCA&quot; =&gt; 'A', &quot;GCC&quot; =&gt; 'A', &quot;GCG&quot; =&gt; 'A', &quot;GCU&quot; =&gt; 'A',
+            &quot;GGA&quot; =&gt; 'G', &quot;GGC&quot; =&gt; 'G', &quot;GGG&quot; =&gt; 'G', &quot;GGU&quot; =&gt; 'G',
+            &quot;GUA&quot; =&gt; 'V', &quot;GUC&quot; =&gt; 'V', &quot;GUG&quot; =&gt; 'V', &quot;GUU&quot; =&gt; 'V',
+            &quot;UAA&quot; =&gt; '*', &quot;UAC&quot; =&gt; 'Y', &quot;UAG&quot; =&gt; '*', &quot;UAU&quot; =&gt; 'Y',
+            &quot;UCA&quot; =&gt; 'S', &quot;UCC&quot; =&gt; 'S', &quot;UCG&quot; =&gt; 'S', &quot;UCU&quot; =&gt; 'S',
+            &quot;UGA&quot; =&gt; '*', &quot;UGC&quot; =&gt; 'C', &quot;UGG&quot; =&gt; 'W', &quot;UGU&quot; =&gt; 'C',
+            &quot;UUA&quot; =&gt; 'L', &quot;UUC&quot; =&gt; 'F', &quot;UUG&quot; =&gt; 'L', &quot;UUU&quot; =&gt; 'F',
+        )
+
+function translate_mrna(seq, codon_table)
+    
+    # check if starts with start codon
+    if ! startswith(seq, &quot;AUG&quot;)
+        @warn &quot;this sequence does not start with AUG&quot;
+    end
+    # check if string is divisible by three
+    if rem(length(seq), 3) != 0
+        @warn &quot;this sequence is not divisible by 3&quot;
+    end
+    # separate string into codons
+    # this makes a generator, which allocates less memory than a vector
+    codons = (join(chunk) for chunk in Iterators.partition(seq, 3))
+
+    # map over codons with codon table, return X if not in codon_table
+    aa_string = join(get(codon_table, c, &quot;X&quot;) for c in codons)
+
+    # return amino acid string
+    return aa_string 
+
+end
+
+translate_mrna(rna, codon_table)</code></pre>
+<p>Let's test that our function correctly deals with non-conventional mRNA strings. </p>
+<p>If we change the input string to include a codon that is not present in the codon table,   
+we should get a warning.  
+The codon should also be translated to an amino acid "X."  </p>
+<pre><code class="julia">translate_mrna(&quot;AUGNCG&quot;, codon_table)</code></pre>
+<p>Next, let's confirm that an input mRNA strand with a length that is not divisible by 3 produces the correct warning.</p>
+<pre><code class="julia">translate_mrna(&quot;AUGGC&quot;, codon_table)</code></pre>
+<h3 id="biosequences_solution" ><a href="#biosequences_solution"> BioSequences Solution</a></h3><p>An alternative way to approach this problem would be to leverage 
+an established function from the BioSequences package in BioJulia.</p>
+<pre><code class="julia">using BioSequences
+
+translate(rna&quot;AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA&quot;)</code></pre>
+<p>This function is straightforward to use,
+especially in the case where the input mRNA has no ambiguous codons 
+and is divisible by 3.   
+However, there are also additional parameters available for handling other types of strings.</p>
+<p>For instance, the function defaults to using the standard genetic code.  
+However, if a user wishes to use another codon chart  
+(for example, yeast or invertebrate),   
+there are others available on <a href="https://github.com/BioJulia/BioSequences.jl/blob/b626dbcaad76217b248449e6aa2cc1650e95660c/src/geneticcode.jl#L130">BioSequences.jl</a> to choose from. </p>
+<p>For example, we can translate the same input mRNA string  
+using the vertebrate mitochondrial genetic code! </p>
+<pre><code class="julia">translate(rna&quot;AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA&quot;, code=BioSequences.vertebrate_mitochondrial_genetic_code) </code></pre>
+<p>By default, <code>allow_ambiguous_codons</code> is <code>true</code>.   
+If a user gives the function a mRNA string with ambiguous codons that may not be found in the standard genetic code,  
+these codons will be translated to the narrowest amino acid   
+which covers all
+non-ambiguous codons encompassed by the ambiguous codon.  
+If this option is turned off,  
+ambiguous codons will cause an error.</p>
+<p>For example, the input mRNA string below includes the nucleotides <code>NCG</code>,  
+which is an ambiguous codon.
+This could potentially code for <code>ACG</code> (Threonine),   
+<code>CCG</code> (Proline), <code>UCG</code> (Serine), <code>GCG</code> (Alanine),    
+each of which would code for four different amino acids.  </p>
+<p><code>allow_ambiguous_codons</code> is <code>true</code> by default,    
+so this mRNA strand is translated to <code>MX</code>.</p>
+<pre><code class="julia">translate(rna&quot;AUGNCG&quot;)</code></pre>
+<p>However, if <code>allow_ambiguous_codons</code> is changed to <code>false</code>,   
+an error is thrown, as no ambiguous codons are allowed in the result. </p>
+<pre><code class="julia">translate(rna&quot;AUGNCG&quot;, allow_ambiguous_codons=false)</code></pre>
+<p>Additionally, <code>alternative_start</code> is <code>false</code> by default.  
+If set to true, the starting amino acid will be Methionine regardless of what the first codon is.</p>
+<pre><code class="julia">translate(rna&quot;AUCGAC&quot;, alternative_start = true)</code></pre>
+<p>Similar to our function, the BioSequences function also throws an error if the input mRNA string is not divisible by 3.</p>
+<pre><code class="julia">translate(rna&quot;AUGGA&quot;)</code></pre>
+
+  <footer class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> BioJulia Developers
+   · Last modified: 
+  <br>
+  Built with <a href="https://github.com/tlienart/Xranklin.jl">Xranklin.jl</a>
+</footer>
+
+</div>
+
+  </main>
+  
+  
+    <script src="/BioTutorials/libs/highlight/julia-custom.min.js"></script>
+<script>
+  // Configure highlight.js to recognize Xranklin's class format
+  document.querySelectorAll('pre code').forEach((el) => {
+    if (el.className && !el.className.startsWith('language-')) {
+      el.classList.add('language-' + el.className.split(' ')[0]);
+    }
+  });
+  hljs.highlightAll();
+</script>
+
+  
+  <script>
+    // Theme toggle functionality
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      if (!toggle) return;
+
+      function getSystemTheme() {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+      function getCurrentTheme() {
+        const stored = localStorage.getItem('theme');
+        if (stored) return stored;
+        return getSystemTheme();
+      }
+
+      function updateHighlightTheme(isDark) {
+        const lightStyle = document.getElementById('hljs-light');
+        const darkStyle = document.getElementById('hljs-dark');
+        if (lightStyle && darkStyle) {
+          lightStyle.disabled = isDark;
+          darkStyle.disabled = !isDark;
+        }
+      }
+
+      toggle.addEventListener('click', function() {
+        const current = getCurrentTheme();
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateHighlightTheme(next === 'dark');
+      });
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+          // Only update if user hasn't manually set a preference
+          document.documentElement.removeAttribute('data-theme');
+          updateHighlightTheme(e.matches);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

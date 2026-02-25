@@ -12,8 +12,21 @@
       }
     })();
   </script>
-  
-  
+   <link rel="stylesheet" href="/BioTutorials/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github.min.css" id="hljs-light">
+<link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github-dark.min.css" id="hljs-dark" disabled>
+<script>
+  // Set initial highlight theme based on current theme
+  (function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.getElementById('hljs-light').disabled = isDark;
+    document.getElementById('hljs-dark').disabled = !isDark;
+  })();
+</script>
+   
   <link rel="stylesheet" href="/BioTutorials/css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +37,7 @@
 <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/BioTutorials/assets/apple-touch-icon.png">
 
 
-   <title>BioJulia Tutorials - BioJulia</title>  
+   <title>Problem 2: Transcription - BioJulia</title>  
 </head>
 <body>
   <header class="site-header">
@@ -85,8 +98,71 @@
   <main class="franklin-content">
 
 <div class="franklin-content" >
-  <h1 id="biojulia_tutorials" ><a href="#biojulia_tutorials"> BioJulia Tutorials</a></h1><p>Tutorials for doing bioinformatics with Julia and the BioJulia ecosystem.</p>
-<article class="series-card"><h2><a href="/BioTutorials/rosalind/">Getting Started with Rosalind.info Problems</a></h2><p class="description">Step-by-step solutions to Rosalind.info bioinformatics problems using base Julia and the BioJulia ecosystem.</p><p class="post-meta">9 tutorials</p></article>
+  <h1 id="problem_2_transcription" ><a href="#problem_2_transcription"> ✍️ Problem 2: Transcription</a></h1><p>🤔 <a href="https://rosalind.info/problems/rna/">Problem link</a></p>
+<blockquote><p><strong>The Problem</strong></p>
+<p>An RNA string is a string formed from the alphabet containing 'A', 'C', 'G', and 'U'.</p>
+<p>Given a DNA string \(t\) corresponding to a coding strand,
+its transcribed RNA string \(u\) is formed
+by replacing all occurrences of 'T' in \(t\) with 'U' in \(u\).</p>
+<p><em>Given</em>: A DNA string \(t\) having length at most 1000 nt.</p>
+<p><em>Return</em>: The transcribed RNA string of \(t\).</p>
+<p><strong>Sample Dataset</strong></p>
+<pre><code class="julia">GATGGAACTTGACTACGTAAATT</code></pre>
+<p><strong>Sample Output</strong></p>
+<pre><code class="julia">GAUGGAACUUGACUACGUAAAUU</code></pre>
+</blockquote><h3 id="approach_1_string_replace()" ><a href="#approach_1_string_replace()"> Approach 1 - string <code>replace()</code></a></h3><pre><code class="julia">input_dna = &quot;GATGGAACTTGACTACGTAAATT&quot;
+answer = &quot;GAUGGAACUUGACUACGUAAAUU&quot;</code></pre>
+<p>This one is pretty straightforward, as described.
+All we need to do is replace any <code>'T'</code>s with <code>'U'</code>s.
+Happily, julia has a handy <code>replace()</code> function
+that takes a string, and a <code>Pair</code> that is <code>pattern =&gt; replacement</code>.
+In principle, the pattern can be a literal <code>String</code>,
+or even a regular expression. But here, we can just use a <code>Char</code>.</p>
+<p>I'll also write the function using julia's one-line function definition syntax:</p>
+<pre><code class="julia">simple_transcribe(seq) = replace(seq, 'T'=&gt; 'U')
+
+@assert simple_transcribe(input_dna) == answer</code></pre>
+<p>As always, there are lots of ways you <em>could</em> do this.
+This function won't handle poorly formatted sequences,
+for example. Or rather, it will handle them, even though it shouldn't:</p>
+<pre><code class="julia">simple_transcribe(&quot;This Is QUITE silly&quot;)  # &quot;This Is QUIUE silly&quot;</code></pre>
+<h3 id="approach_2_biosequences_longrna" ><a href="#approach_2_biosequences_longrna"> Approach 2 - BioSequences <code>LongRNA</code></a></h3><p>As you might expect, <code>BioSequences.jl</code> has a way to do this as well.
+<code>BioSequences.jl</code> doesn't just use a <code>String</code> to represent sequences,
+there are special types that can efficiently encode nucleic acid
+or amino acid sequences.
+In some cases, eg DNA or RNA with no ambiguous bases, using as few as 2 bits
+per base.</p>
+<pre><code class="julia">using BioSequences
+
+dna_seq = LongDNA&lbrace;2&rbrace;(input_dna)
+
+simple_transcribe(seq::LongDNA&lbrace;N&rbrace;) where N = LongRNA&lbrace;N&rbrace;(seq)
+
+rna_seq = simple_transcribe(dna_seq)
+
+@assert String(rna_seq) == answer</code></pre>
+<p>A couple of things to note here. First,
+I'm taking advantage of julia's multiple dispatch system.
+Instead of writing a separate function name for dealing with
+a <code>LongDNA</code> from <code>BioSequences.jl</code>, I wrote a new <em>method</em>
+for the same function by adding <code>::LongDNA&lbrace;N&rbrace;</code> to the argument.</p>
+<p>This tells julia to call this version of <code>simple_transcribe()</code>
+whenever the argument is a <code>LongDNA</code>. Otherwise, it will fall back to the original
+(julia always uses the method that is most specific for its arguments).</p>
+<p>The last thing to note is the <code>&lbrace;N&rbrace; ... where N</code>. This is just a way
+that we can use any DNA alphabet (2 bit or 4 bit), and get similar behavior.</p>
+<h3 id="benchmarks" ><a href="#benchmarks"> Benchmarks</a></h3><pre><code class="julia">using BenchmarkTools
+
+testseq = randdnaseq(100_000) #this is defined in BioSequences
+testseq_str = string(testseq)
+
+@benchmark simple_transcribe($testseq_str)
+@benchmark simple_transcribe(x) setup=(x=LongDNA&lbrace;2&rbrace;(testseq))
+@benchmark simple_transcribe(x) setup=(x=LongDNA&lbrace;4&rbrace;(testseq))</code></pre>
+<h3 id="conclusions" ><a href="#conclusions"> Conclusions</a></h3><p>The <code>replace()</code> method does surprisingly well,
+but the BioJulia method is about 2x faster on a 2-bit sequence
+(that is, if there's no ambiguity), and about the same speed on 4-bit sequences.</p>
+
   <footer class="page-foot">
   <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> BioJulia Developers
    · Last modified: 
@@ -98,6 +174,23 @@
 
   </main>
   
+    <script src="/BioTutorials/libs/katex/katex.min.js"></script>
+<script src="/BioTutorials/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+  
+  
+    <script src="/BioTutorials/libs/highlight/julia-custom.min.js"></script>
+<script>
+  // Configure highlight.js to recognize Xranklin's class format
+  document.querySelectorAll('pre code').forEach((el) => {
+    if (el.className && !el.className.startsWith('language-')) {
+      el.classList.add('language-' + el.className.split(' ')[0]);
+    }
+  });
+  hljs.highlightAll();
+</script>
+
   
   <script>
     // Theme toggle functionality
