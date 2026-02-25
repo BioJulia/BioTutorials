@@ -1,0 +1,31 @@
+name: Build and Deploy
+on:
+  push:
+    branches: [main]
+  pull_request_target:
+    types: [opened, synchronize]
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set preview path for PRs
+        run: echo 'PRID=${{ env.PREVIEWS_PREFIX}}${{ github.event.number}}' >> $GITHUB_ENV
+        if: github.event_name == 'pull_request_target'
+
+      - name: Build and Deploy
+        uses: tlienart/xranklin-build-action@main
+        with:
+          SITE_FOLDER: "./"
+          BASE_URL_PREFIX: BioTutorials
+          PREVIEW: ${{ env.PRID }}
+
+      - name: Comment PR preview URL
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: "Preview at https://biojulia.github.io/BioTutorials/${{ env.PRID }}"
+        if: github.event_name == 'pull_request_target'

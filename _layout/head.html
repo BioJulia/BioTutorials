@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // Set theme immediately to prevent flash
+    (function() {
+      const stored = localStorage.getItem('theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
+  {{if hasmath}} {{insert head_katex.html }}     {{end}}
+  {{if hascode}} {{insert head_highlight.html }}   {{end}}
+  {{ insert head_mixin.html }}
+
+  {{isdef title}} <title>{{fill title}} - BioJulia</title>  {{end}}
+</head>
+<body>
+  {{insert header.html}}
+  <main class="franklin-content">
+<!-- Content appended here -->
