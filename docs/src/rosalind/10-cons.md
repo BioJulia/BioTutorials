@@ -148,9 +148,6 @@ function consensus(fasta_string)
     data_matrix = reduce(vcat, permutedims.(collect.(data_vector)))
 
     # make profile matrix
-
-    ## Is it possible to do this in a more efficient vectorized way? I wanted to see if we could do countmap() for each column in a simple way that would involve looping over each column. I think this ended up being more efficient since we are just looping over each of the nucleotides
-
     consensus_matrix_list = Vector{Int64}[] 
     for nuc in ['A', 'C', 'G', 'T']
         nuc_count = vec(sum(x->x==nuc, data_matrix, dims=1))
