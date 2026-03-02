@@ -185,3 +185,24 @@ we first scan for 'A', 'C', then 'G' and 'T',
 so the final consensus string will be biased towards more A's, then C's, G's and T's.  
 This simply based on which nucleotide counts it will encounter first in the profile matrix.
 
+In the example below, there are equal number of reads indicating that the consensus string could be either `AAAAAAAA` or `GGGGGGGG`. However, because our solution scans for `A` first, the consensus string returned will be `AAAAAAAA`.
+
+```julia
+fake_file2 = IOBuffer("""
+    >Rosalind_1
+    AAAAAAAA
+    >Rosalind_2
+    AAAAAAAA
+    >Rosalind_3
+    AAAAAAAA
+    >Rosalind_4
+    GGGGGGGG
+    >Rosalind_5
+    GGGGGGGG
+    >Rosalind_6
+    GGGGGGGG
+    """
+)
+
+consensus(fake_file2)
+```
