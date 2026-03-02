@@ -122,14 +122,14 @@ end
 records = parse_fasta(fake_file)
 ```
 
-Once the fasta is read in, we can iterate over each read and store its nucleotide sequence in a data matrix.
+Once the fasta is read in, we can iterate over each sequence/record and store its nucleotide sequence in a data matrix.
 
 From there, we can generate the profile matrix.  
-We'll need to sum the number of times each nucleotide appears at a particular row of the data matrix.  
+We'll need to sum the number of times each nucleotide appears at a particular column of the data matrix.  
 
 Then, we can identify the most common nucleotide at each column of the data matrix,   
-which represents each index of the consensus string.  
-After we have done this for all columns of the data matrix,   
+which represent each index of the consensus string.  
+After doing this for all columns of the data matrix,   
 we can generate the consensus string.  
 
 
@@ -141,10 +141,10 @@ function consensus(fasta_string)
     # extract strings from fasta
     records = parse_fasta(fasta_string)
 
-    # make a vector of just strings
+    # make a vector of sequence strings
     data_vector = last.(records)
 
-    # convert data_vector to matrix where each column is a char and each row is a string
+    # convert data_vector to matrix where each column is a character position and each row is a string
     data_matrix = reduce(vcat, permutedims.(collect.(data_vector)))
 
     # make profile matrix
@@ -160,7 +160,7 @@ function consensus(fasta_string)
     consensus_df = DataFrame(consensus_matrix, ["A", "C", "G", "T"])
 
 
-    # make column with nucleotide with max value 
+    # make column with nucleotide with the max value 
     # argmax returns the index or key of the first one encountered
     nuc_max_df = transform(consensus_df, AsTable(:) => ByRow(argmax) => :MaxColName)
 
@@ -178,14 +178,17 @@ as some nucleotides may appear the same number of times
 in each column of the data matrix. 
 
 If this is the case,   
-the function we are using (`argmax`) returns the nucleotide with the most occurences that it first encounters. 
+the function we are using (`argmax`) returns the nucleotide with the most occurrences that it first encounters. 
 
 The way our function is written,  
 we first scan for 'A', 'C', then 'G' and 'T',   
 so the final consensus string will be biased towards more A's, then C's, G's and T's.  
-This simply based on which nucleotide counts it will encounter first in the profile matrix.
+This is simply based on which nucleotide counts it will encounter first in the profile matrix.
 
-In the example below, there are equal number of reads indicating that the consensus string could be either `AAAAAAAA` or `GGGGGGGG`. However, because our solution scans for `A` first, the consensus string returned will be `AAAAAAAA`.
+In the example below, there are equal number of sequences that are all `A`'s and `G`'s,  
+so the consensus string could be either `AAAAAAAA` or `GGGGGGGG`.   
+However, because our solution scans for `A` first,   
+the consensus string returned will be `AAAAAAAA`.
 
 ```julia
 fake_file2 = IOBuffer("""
