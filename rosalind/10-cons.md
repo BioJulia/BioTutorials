@@ -154,7 +154,6 @@ we can generate the consensus string.
 
 ```julia
 function consensus(fasta_string)
-    
     # extract strings from fasta
     records = parse_fasta(fasta_string)
 
