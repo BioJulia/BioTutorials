@@ -82,6 +82,9 @@ rss_descr = "Solving Rosalind problem CONS — finding a consensus string from a
 >    **Sample Output** 
 >    ```
 >    ATGCAACT
+>    ```
+> 
+>    ```
 >    A: 5 1 0 0 5 5 0 0
 >    C: 0 0 1 4 2 0 6 1
 >    G: 1 1 6 3 0 1 0 0
@@ -150,8 +153,6 @@ we can generate the consensus string.
 
 
 ```julia
-using DataFrames
-
 function consensus(fasta_string)
     
     # extract strings from fasta
@@ -163,26 +164,14 @@ function consensus(fasta_string)
     # convert data_vector to matrix where each column is a character position and each row is a string
     data_matrix = reduce(vcat, permutedims.(collect.(data_vector)))
 
-    # make profile matrix
-    consensus_matrix_list = Vector{Int64}[] 
-    for nuc in ['A', 'C', 'G', 'T']
-        nuc_count = vec(sum(x->x==nuc, data_matrix, dims=1))
-        push!(consensus_matrix_list, nuc_count)
-    end
+    # make profile matrix: (num_strings × n) of Chars
+    # profile is 4×n (each row corresponds to A,C,G,T)
+    nucs = ['A', 'C', 'G', 'T']
+    profile = reduce(vcat, (sum(data_matrix .== nuc, dims=1) for nuc in nucs))
 
-    consensus_matrix = vcat(consensus_matrix_list)
-
-    # convert matrix to DF and add row names for nucleotides
-    consensus_df = DataFrame(consensus_matrix, ["A", "C", "G", "T"])
-
-
-    # make column with nucleotide with the max value 
-    # argmax returns the index or key of the first one encountered
-    nuc_max_df = transform(consensus_df, AsTable(:) => ByRow(argmax) => :MaxColName)
-
-    # return consensus string
-    return join(nuc_max_df.MaxColName)
-
+    # compute the consensus string
+    consensus_string = join([nucs[argmax(@view profile[:, j])] for j in 1:size(profile, 2)])
+    return(consensus_string)
 end
 
 consensus(fake_file)
