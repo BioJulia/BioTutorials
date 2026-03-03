@@ -50,10 +50,8 @@ rss_descr = "Solving Rosalind problem CONS — finding a consensus string from a
 >    ```
 >
 >   **Consensus**  
->   `
->   A T G C A A C T
->   `
-> 
+>   `A T G C A A C T`
+>
 >    **Given:**   
 >    A collection of at most 10 DNA strings of equal length (at most 1 kbp) in FASTA format.
 >
