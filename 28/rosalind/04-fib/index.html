@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // Set theme immediately to prevent flash
+    (function() {
+      const stored = localStorage.getItem('theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
+   <link rel="stylesheet" href="/BioTutorials/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github.min.css" id="hljs-light">
+<link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github-dark.min.css" id="hljs-dark" disabled>
+<script>
+  // Set initial highlight theme based on current theme
+  (function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.getElementById('hljs-light').disabled = isDark;
+    document.getElementById('hljs-dark').disabled = !isDark;
+  })();
+</script>
+   
+  <link rel="stylesheet" href="/BioTutorials/css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<link rel="icon" type="image/png" sizes="192x192" href="/BioTutorials/assets/favicon.png">
+<link rel="shortcut icon" href="/BioTutorials/assets/favicon.ico">
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="/BioTutorials/assets/apple-touch-icon.png">
+
+
+   <title>Problem 4: Rabbits and Recurrence Relations - BioJulia</title>  
+</head>
+<body>
+  <header class="site-header">
+  <div class="header-content">
+    <div class="header-left">
+      <a href="https://biojulia.dev/BioTutorials" class="logo-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136.48101 51.472999" height="32" aria-label="BioJulia">
+          <g id="bubble-helix">
+            <circle cx="5.9792" cy="20.3" r="5.9792" fill="#945bb0"/>
+            <circle cx="21.317" cy="39.5" r="4.9393" fill="#4266d5"/>
+            <circle cx="16.378" cy="11.7" r="4.9393" fill="#c93d39"/>
+            <circle cx="35.095" cy="35.9" r="5.9792" fill="#945bb0"/>
+            <circle cx="47.184" cy="23.8" r="7.409" fill="#4266d5"/>
+            <circle cx="28.986" cy="9.7" r="4.5494" fill="#3b972e"/>
+            <circle cx="89.428" cy="46.5" r="4.9393" fill="#c93d39"/>
+            <circle cx="71.62" cy="5.6" r="5.5892" fill="#945bb0"/>
+            <circle cx="121.01" cy="15.5" r="5.5892" fill="#c93d39"/>
+            <circle cx="59.662" cy="30.3" r="2.4697" fill="#4266d5"/>
+            <circle cx="103.6" cy="19.9" r="3.2496" fill="#c93d39"/>
+            <circle cx="123.61" cy="36.5" r="2.7296" fill="#4266d5"/>
+            <circle cx="127.64" cy="5.2" r="3.8995" fill="#3b972e"/>
+            <circle cx="132.58" cy="39.2" r="3.8995" fill="#945bb0"/>
+            <circle cx="67.591" cy="37.4" r="3.3795" fill="#3b972e"/>
+            <circle cx="95.017" cy="13.9" r="4.2894" fill="#4266d5"/>
+            <circle cx="77.729" cy="42.9" r="3.8995" fill="#945bb0"/>
+            <circle cx="102.56" cy="42.0" r="5.8492" fill="#4266d5"/>
+            <circle cx="113.6" cy="28.8" r="6.7591" fill="#3b972e"/>
+            <circle cx="57.582" cy="11.0" r="6.3691" fill="#c93d39"/>
+            <circle cx="38.735" cy="14.8" r="3.3795" fill="#c93d39"/>
+            <circle cx="84.618" cy="7.9" r="5.3293" fill="#3b972e"/>
+          </g>
+        </svg>
+        <span>BioTutorials</span>
+      </a>
+    </div>
+    <nav class="header-nav">
+      <a href="/BioTutorials/">Tutorials</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+  <main class="franklin-content">
+
+<div class="franklin-content" >
+  <h1 id="problem_4_rabbits_and_recurrence_relations" ><a href="#problem_4_rabbits_and_recurrence_relations"> ♻️ 🐇 Problem 4: Rabbits and Recurrence Relations</a></h1><p>🤔 <a href="https://rosalind.info/problems/fib/">Problem link</a></p>
+<blockquote><p><strong>The Problem</strong></p>
+<p><em>Given</em>: Positive integers \(n \leq 40\) and \(k \leq 5\).</p>
+<p><em>Return</em>: The total number of rabbit pairs
+that will be present after \(n\) months,
+if we begin with 1 pair and in each generation,
+every pair of reproduction-age rabbits produces a litter of \(k\)
+rabbit pairs (instead of only 1 pair).</p>
+<p><strong>Sample Dataset</strong></p>
+<pre><code class="julia">5 3</code></pre>
+<p><strong>Sample Output</strong></p>
+<pre><code class="julia">19</code></pre>
+</blockquote><p>This is a classic computer science problem,
+but not <em>directly</em> biology focused.
+Instead, we'll use it to showcase some other julia features.</p>
+<h2 id="recursion_in_julia" ><a href="#recursion_in_julia"> Recursion in julia</a></h2><p>Recursion in julia is pretty easy -
+we simply have a function call itself.
+As in any language, the key is to have a bail-out condition
+to avoid infinite recursion.</p>
+<p>In this case, the bail-out is when you reach \(1\),
+and it's also helpful to avoid invalid inputs.</p>
+<pre><code class="julia">function fib(n::Int, k::Int)
+    # validate inputs
+    n &gt;= 0 || error(&quot;N must be greater than or equal to 0&quot;)
+    k &gt; 1 || error(&quot;K must be at least 2&quot;)
+
+    # once we reach 1 or 0, we just return 1 or 0
+    if n &lt;= 1
+        return n
+    else
+        # otherwise, recursively call on the previous 2 integers
+        return fib(n - 1, k) + k * fib(n - 2, k)
+    end
+end</code></pre>
+<p>Let's go through each piece:</p>
+<pre><code class="julia">function fib(n::Int, k::Int)</code></pre>
+<p>is the function definition.
+It takes two arguments, <code>n</code> and <code>k</code>, both of type <code>Int</code>.</p>
+<pre><code class="julia">n &gt;= 0 || error(&quot;N must be greater than or equal to 0&quot;)
+k &gt; 1 || error(&quot;K must be at least 2&quot;)</code></pre>
+<p>are what we call "short-circuit" evaluation.
+The <code>||</code> operator is a logical OR operator,
+and so if the first condition is true, the second condition is not evaluated
+(because <code>true</code> OR anything is true).
+The same things could have been written with the short-circuiting <code>&amp;&amp;</code>
+or as an <code>if</code> statement:</p>
+<pre><code class="julia">!(n &gt;= 0) &amp;&amp; error(&quot;N must be greater than or equal to 0&quot;)
+# or
+n &lt; 0 &amp;&amp; error(&quot;N must be greater than or equal to 0&quot;)
+# or
+if n &lt; 0
+    error(&quot;N must be greater than or equal to 0&quot;)
+end</code></pre>
+<pre><code class="julia">if n &lt;= 1
+    return n</code></pre>
+<p>This is our recursion bail-out or "base case".
+Once we reach \(1\) or \(0\), we don't want to recurse any more,
+we just return that value.</p>
+<pre><code class="julia">else
+    return fib(n - 1, k) + k * fib(n - 2, k)
+end</code></pre>
+<p>If we're not at the base case, we recurse.
+We call the function again, but with \(n - 1\)
+for the previous generation,
+and \(n - 2\) for the generation before that.
+We also multiply the second call by \(k\)
+to handle the fact that each pair of rabbits
+from two generations ago (the ones that have matured)
+produce \(k\) pairs of rabbits when they breed.</p>
+<h2 id="multiple_dispatch" ><a href="#multiple_dispatch"> Multiple dispatch</a></h2><p>So that solves the recursion problem,
+but one thing you might notice
+if you try to read the inputs from rosalind.info directly
+is that we read the files as <code>String</code>s,
+but we've defined our function to operate on <code>Int</code>s.</p>
+<pre><code class="julia">function fib(n::Int, k::Int)</code></pre>
+<p>Here, we're defining a function with 2 arguments,
+\(n\) and \(k\).
+The <code>::Int</code> syntax forces the arguments to have the type <code>Int</code>,
+which is short-hand for a 64-bit integer.</p>
+<p>In something like python,
+you would probably write the function without type annotations,
+and then check inside the function
+with an <code>if</code> statement to deal with
+the case where the arguments are not integers:</p>
+<pre><code class="python">def fib(n, k):
+    if not isinstance(n, int):
+        n = int(n)
+    if not isinstance(k, str):
+        k = int(k)
+
+    # do stuff</code></pre>
+<p>In julia, we can handle this instead by
+defining different "methods" of <code>fib</code>, each of which
+takes different types of arguments.
+In a previous problem,
+when we defined a function to operate on <code>String</code>s or on <code>BioSequence</code>s,
+we saw that julia makes use of "multiple dispatch",
+though we didn't name it as such.</p>
+<p>In this case,
+if we try to call the function with different argument types,
+say <code>String</code>s, we'll get a <code>MethodError</code>, telling us that there isn't
+a version that works on that combination of types:</p>
+<pre><code class="julia-repl">julia&gt; fib(&quot;5&quot;, &quot;3&quot;)
+ERROR: MethodError: no method matching fib(::String, ::String)
+The function `fib` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  fib(::Int64, ::Int64)</code></pre>
+<p>If we'd like, we could define a version
+that takes <code>String</code>s as arguments,
+and tries to convert them into integers.
+To do that, we use the <code>parse()</code> function.
+For example:</p>
+<pre><code class="julia">parse(Int, &quot;5&quot;)  # 5</code></pre>
+<p>So, here's a version of <code>fib</code> that takes <code>String</code>s as arguments:</p>
+<pre><code class="julia">function fib(n::String, k::String)
+    nint = parse(Int, n)
+    kint = parse(Int, k)
+    fib(nint, kint)
+end
+
+fib(&quot;5&quot;, &quot;3&quot;)  # 19</code></pre>
+<p>Ok, but this still doesn't work for mixed types:</p>
+<pre><code class="julia-repl">julia&gt; fib(&quot;2&quot;, 3)
+ERROR: MethodError: no method matching fib(::String, ::Int64)
+The function `fib` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  fib(::String, ::String)
+  fib(::Int64, ::Int64)</code></pre>
+<p>We could now go through and define methods
+of <code>fib</code> that take different types of arguments.
+For example:</p>
+<pre><code class="julia">function fib(n::String, k::Int)
+    nint = parse(Int, n)
+    fib(nint, k)
+end
+
+function fib(n::Int, k::String)
+    kint = parse(Int, k)
+    fib(n, kint)
+end
+
+fib(2, &quot;3&quot;)  # works now</code></pre>
+<h2 id="parsing_files" ><a href="#parsing_files"> Parsing files</a></h2><p>When you do a problem on Rosalind,
+the file you download contains your problem input.
+Up to now,
+I've just assumed you'll be copy-pasting
+the input into your Julia REPL.</p>
+<p>However, it's often more convenient to read the input from a file,
+and in this case, a little additional parsing is required,
+since the input comes in the form of two integers separated by a space,
+and when you read in the file, it will be a <code>String</code>.</p>
+<p>There are a number of ways to read files in julia,
+including the <code>readlines()</code> function,
+which loads all of the lines of the file into <code>Vector&lbrace;String&rbrace;</code>.</p>
+<p>When you have really large files, this can be annoying,
+and you can instead use the <code>eachline()</code> function,
+so you can do something like <code>for line in eachline(&quot;input.txt&quot;)</code>
+and deal with each line separately.</p>
+<p>But in this case (and the previous rosalind.info problems we've looked at),
+each problem comes in as a single line,
+so we'll use the <code>read()</code> function instead.
+By default, <code>read()</code> reads the entire file into a vector of bytes,
+that is a <code>Vector&lbrace;UInt8&rbrace;</code>.
+This can be converted to a <code>String</code> using the <code>String()</code> function,
+but this is a common enough use-case that we can just tell <code>read()</code> to return a <code>String</code>
+by passing the <code>String</code> type as an argument.</p>
+<pre><code class="julia">read(&quot;rosalind_fib.txt&quot;, String)</code></pre>
+<p>One tricky gotcha is that the rosalind text files
+have a trailing newline character at the end of the file.
+This can be removed using the <code>strip()</code> function.</p>
+<p>Finally, because of the format of this input in particular,
+we'll use the <code>split()</code> function to split the string into two parts,
+and then convert each part to an integer using the <code>parse()</code> function.</p>
+<pre><code class="julia">function read_fib(file)
+    numbers = read(file, String)
+    numbers = strip(numbers) # remove trailing newline
+    n_str, k_str = split(numbers, ' ') # split on spaces
+    return parse(Int, n_str), parse(Int, k_str)
+end
+
+(n, k) = read_fib(&quot;rosalind_fib.txt&quot;)
+fib(n, k)</code></pre>
+
+  <footer class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> BioJulia Developers
+   · Last modified: 
+  <br>
+  Built with <a href="https://github.com/tlienart/Xranklin.jl">Xranklin.jl</a>
+</footer>
+
+</div>
+
+  </main>
+  
+    <script src="/BioTutorials/libs/katex/katex.min.js"></script>
+<script src="/BioTutorials/libs/katex/contrib/auto-render.min.js"></script>
+<script>renderMathInElement(document.body)</script>
+
+  
+  
+    <script src="/BioTutorials/libs/highlight/julia-custom.min.js"></script>
+<script>
+  // Configure highlight.js to recognize Xranklin's class format
+  document.querySelectorAll('pre code').forEach((el) => {
+    if (el.className && !el.className.startsWith('language-')) {
+      el.classList.add('language-' + el.className.split(' ')[0]);
+    }
+  });
+  hljs.highlightAll();
+</script>
+
+  
+  <script>
+    // Theme toggle functionality
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      if (!toggle) return;
+
+      function getSystemTheme() {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+      function getCurrentTheme() {
+        const stored = localStorage.getItem('theme');
+        if (stored) return stored;
+        return getSystemTheme();
+      }
+
+      function updateHighlightTheme(isDark) {
+        const lightStyle = document.getElementById('hljs-light');
+        const darkStyle = document.getElementById('hljs-dark');
+        if (lightStyle && darkStyle) {
+          lightStyle.disabled = isDark;
+          darkStyle.disabled = !isDark;
+        }
+      }
+
+      toggle.addEventListener('click', function() {
+        const current = getCurrentTheme();
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateHighlightTheme(next === 'dark');
+      });
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+          // Only update if user hasn't manually set a preference
+          document.documentElement.removeAttribute('data-theme');
+          updateHighlightTheme(e.matches);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
