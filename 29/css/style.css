@@ -1,0 +1,586 @@
+/* ==================================================================
+   BioJulia Posts - VitePress-inspired clean design
+   ================================================================== */
+
+:root {
+  /* Colors - Light Mode */
+  --color-brand: #3eaf7c;
+  --color-brand-light: #4abf8a;
+  --color-brand-dark: #3aa775;
+
+  --color-text: #213547;
+  --color-text-light: #476582;
+  --color-text-lighter: #6a8bad;
+
+  --color-bg: #ffffff;
+  --color-bg-soft: #f6f6f7;
+  --color-bg-mute: #e9e9eb;
+
+  --color-border: #e2e2e3;
+  --color-border-light: #ebebec;
+
+  --color-code-bg: #f6f6f7;
+  --color-code-text: #476582;
+
+  /* Typography */
+  --font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+
+  /* Spacing */
+  --content-width: 740px;
+  --sidebar-width: 272px;
+  --header-height: 64px;
+}
+
+/* Dark Mode Colors */
+[data-theme="dark"] {
+  --color-brand: #42d392;
+  --color-brand-light: #5bd8a0;
+  --color-brand-dark: #3eaf7c;
+
+  --color-text: #e5e5e5;
+  --color-text-light: #a8b1c1;
+  --color-text-lighter: #7c8594;
+
+  --color-bg: #1a1a1a;
+  --color-bg-soft: #242424;
+  --color-bg-mute: #2e2e2e;
+
+  --color-border: #3a3a3a;
+  --color-border-light: #2e2e2e;
+
+  --color-code-bg: #2e2e2e;
+  --color-code-text: #a8b1c1;
+}
+
+/* System preference dark mode (when no explicit theme set) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-brand: #42d392;
+    --color-brand-light: #5bd8a0;
+    --color-brand-dark: #3eaf7c;
+
+    --color-text: #e5e5e5;
+    --color-text-light: #a8b1c1;
+    --color-text-lighter: #7c8594;
+
+    --color-bg: #1a1a1a;
+    --color-bg-soft: #242424;
+    --color-bg-mute: #2e2e2e;
+
+    --color-border: #3a3a3a;
+    --color-border-light: #2e2e2e;
+
+    --color-code-bg: #2e2e2e;
+    --color-code-text: #a8b1c1;
+  }
+}
+
+/* ==================================================================
+   Reset & Base
+   ================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-family);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+/* ==================================================================
+   Header / Navigation
+   ================================================================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  height: var(--header-height);
+}
+
+.header-content {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.logo-link:hover {
+  color: var(--color-brand);
+}
+
+.logo-link img {
+  height: 24px;
+  width: auto;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-nav a {
+  padding: 4px 12px;
+  color: var(--color-text-light);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.header-nav a:hover {
+  color: var(--color-brand);
+  background-color: var(--color-bg-soft);
+}
+
+.header-nav a.active {
+  color: var(--color-brand);
+}
+
+/* Theme Toggle */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--color-text-light);
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.theme-toggle:hover {
+  color: var(--color-brand);
+  background-color: var(--color-bg-soft);
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Show/hide icons based on theme */
+.theme-toggle .icon-sun {
+  display: none;
+}
+
+.theme-toggle .icon-moon {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun {
+    display: block;
+  }
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon {
+    display: none;
+  }
+}
+
+/* ==================================================================
+   Main Content
+   ================================================================== */
+
+.franklin-content {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* ==================================================================
+   Typography
+   ================================================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+h1 {
+  font-size: 32px;
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 24px;
+  margin-top: 48px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+h3 {
+  font-size: 20px;
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+h4 {
+  font-size: 18px;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+p {
+  margin: 0 0 16px;
+}
+
+a {
+  color: var(--color-brand);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+strong {
+  font-weight: 600;
+}
+
+/* ==================================================================
+   Lists
+   ================================================================== */
+
+ul, ol {
+  margin: 0 0 16px;
+  padding-left: 24px;
+}
+
+li {
+  margin-bottom: 8px;
+}
+
+li > ul, li > ol {
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+/* ==================================================================
+   Code
+   ================================================================== */
+
+code {
+  font-family: var(--font-family-mono);
+  font-size: 14px;
+  background-color: var(--color-code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--color-code-text);
+}
+
+pre {
+  margin: 0 0 24px;
+  padding: 16px 20px;
+  background-color: var(--color-bg-soft);
+  border-radius: 8px;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+pre code {
+  padding: 0;
+  background: none;
+  font-size: 14px;
+}
+
+.hljs {
+  background: var(--color-bg-soft);
+  padding: 16px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.code-output {
+  background: var(--color-bg-mute);
+  border: none;
+  border-left: 3px solid var(--color-border);
+  margin-top: -20px;
+  margin-bottom: 24px;
+  border-radius: 0 8px 8px 0;
+}
+
+/* ==================================================================
+   Blockquotes
+   ================================================================== */
+
+blockquote {
+  margin: 16px 0;
+  padding: 12px 16px;
+  background-color: var(--color-bg-soft);
+  border-left: 4px solid var(--color-brand);
+  border-radius: 0 8px 8px 0;
+  color: var(--color-text-light);
+}
+
+blockquote p {
+  margin: 0;
+}
+
+blockquote p + p {
+  margin-top: 12px;
+}
+
+/* ==================================================================
+   Tables
+   ================================================================== */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0 24px;
+  font-size: 14px;
+}
+
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  border: 1px solid var(--color-border);
+}
+
+th {
+  background-color: var(--color-bg-soft);
+  font-weight: 600;
+}
+
+tr:nth-child(even) {
+  background-color: var(--color-bg-soft);
+}
+
+/* ==================================================================
+   Images
+   ================================================================== */
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.franklin-content img {
+  display: block;
+  margin: 24px auto;
+}
+
+/* ==================================================================
+   Post List (from utils.jl hfun_list_posts)
+   ================================================================== */
+
+.post-preview {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.post-preview:first-child {
+  padding-top: 0;
+}
+
+.post-preview:last-child {
+  border-bottom: none;
+}
+
+.post-preview h2 {
+  margin: 0 0 8px;
+  padding: 0;
+  border: none;
+  font-size: 20px;
+}
+
+.post-preview h2 a {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.post-preview h2 a:hover {
+  color: var(--color-brand);
+  text-decoration: none;
+}
+
+.post-preview .description {
+  margin: 0 0 12px;
+  color: var(--color-text-light);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.post-preview .post-meta {
+  margin: 0;
+  color: var(--color-text-lighter);
+  font-size: 14px;
+}
+
+/* ==================================================================
+   Footer
+   ================================================================== */
+
+.page-foot {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 32px 24px;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text-lighter);
+}
+
+.page-foot a {
+  color: var(--color-text-light);
+  font-weight: 400;
+}
+
+.page-foot a:hover {
+  color: var(--color-brand);
+}
+
+/* ==================================================================
+   Utility Classes
+   ================================================================== */
+
+.text-center {
+  text-align: center;
+}
+
+/* ==================================================================
+   KaTeX
+   ================================================================== */
+
+.katex {
+  font-size: 1.1em !important;
+}
+
+.katex-display {
+  margin: 24px 0;
+  overflow-x: auto;
+}
+
+/* ==================================================================
+   Footnotes
+   ================================================================== */
+
+.franklin-content .footnote {
+  font-size: 12px;
+  vertical-align: super;
+}
+
+.franklin-content table.fndef {
+  margin: 24px 0;
+  border: none;
+}
+
+.franklin-content .fndef tr {
+  border: none;
+  border-left: 2px solid var(--color-border);
+}
+
+.franklin-content .fndef td {
+  border: none;
+  padding: 4px 12px;
+  font-size: 14px;
+}
+
+/* ==================================================================
+   TOC
+   ================================================================== */
+
+.franklin-toc {
+  background-color: var(--color-bg-soft);
+  padding: 16px 24px;
+  border-radius: 8px;
+  margin-bottom: 32px;
+}
+
+.franklin-toc ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.franklin-toc li {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+/* ==================================================================
+   Responsive
+   ================================================================== */
+
+@media (max-width: 640px) {
+  :root {
+    --header-height: 56px;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .franklin-content {
+    padding: 24px 16px 48px;
+  }
+
+  .header-content {
+    padding: 0 16px;
+  }
+
+  .header-left {
+    gap: 16px;
+  }
+
+  .logo-link span {
+    display: none;
+  }
+}
