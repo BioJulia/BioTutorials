@@ -1,11 +1,13 @@
 +++
+using Dates
+date = Date("2026-03-11")
 title = "Sequence Input/Output"
 rss_descr = "Reading in FASTA, FASTQ, and FAI files using FASTX.jl"
 +++
 
 # Sequence Input/Output
 
-In this chapter, we'll talk about how to read in sequence files using the `FASTX.jl` module.   
+In this chapter, we'll discuss how to read in sequence files using the `FASTX.jl` package.   
 More information about the `FASTX.jl` package can be found at https://biojulia.dev/FASTX.jl/stable/  
 and with the built-in documentation you can access directly within the Julia REPL. 
 
@@ -24,7 +26,7 @@ The `FASTX` package can read in three file types: `fasta`, `fastq`, and `fai`.
 
 ### FASTA files
 FASTA files are text files containing biological sequence data.       
-They have three parts: name, description, and sequence.
+They contain three parts: `identifier`, `description`, and `sequence`.
 
 The template of a sequence record is:
 ```
@@ -32,8 +34,8 @@ The template of a sequence record is:
 {sequence}
 ```
 
-The identifier is the first part of the description until the first whitespace.     
-If there is no white space, the name and description are the same.
+The `identifier` is the first part of the `description` until the first whitespace.     
+If there is no whitespace, the `identifier` and `description` are the same.
 
 Here is an example fasta:
 ```
@@ -43,7 +45,7 @@ CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTA
 ```
 
 ### FASTQ files
-FASTQ files are also text-based files that contain sequences, along with a name and description.   
+FASTQ files are also text-based files that contain sequences, along with an identifier and description.   
 However, they also store sequence quality information (the Q is for quality!).
 
 The template of a sequence record is:
@@ -64,7 +66,7 @@ tcagTTAAGATGGGAT
 
 ### FAI files
 
-FAI (FASTA index) files are used in conjunction with FASTA/FASTQ files.   
+FAI (FASTA index) files are used in conjunction with FASTA or FASTQ files.   
 They are text files with TAB-delimited columns.  
 They allow the user to access specific regions of the reference FASTA/FASTQ without reading in the entire sequence into memory.      
 More information about fai index files can be found [here](https://www.htslib.org/doc/faidx.html).
@@ -80,14 +82,15 @@ QUALOFFSET	Offset of sequence's first quality within the FASTQ file
 ```
 
 We will read in a FASTA file containing the _mecA_ gene.   
-_mecA_ is an antibiotic resistance gene commonly found in Methicillin-resistant _Staphylococcus aureus_ (MRSA). 
-It helps bacteria to break down beta-lactam antibiotics like methicillin.    
+_mecA_ is an antibiotic resistance gene commonly found in methicillin-resistant _Staphylococcus aureus_ (MRSA).   
+It encodes an alternative penicillin-binding protein that allows the bacteria to resist beta-lactam antibiotics like methicillin.  
 It is typically 2.1 kB long.  
-This specific reference fasta was downloaded from NCBI [here](https://www.ncbi.nlm.nih.gov/nuccore/NG_047945.1?report=fasta). More information about this reference sequence can be found [here](https://www.ncbi.nlm.nih.gov/nuccore/NG_047945.1).  
+This specific reference fasta was downloaded from NCBI [here](https://www.ncbi.nlm.nih.gov/nuccore/NG_047945.1?report=fasta).  
+ More information about this reference sequence can be found [here](https://www.ncbi.nlm.nih.gov/nuccore/NG_047945.1).  
 
 First we'll open the file.   
-Then we'll iterate over every record in the file and  
-print out the sequence identifier, the sequence description and then the corresponding sequence.
+Then we'll iterate over every record in the file and print the sequence identifier,  
+description and then the corresponding sequence.
 
 ```julia
 julia> FASTAReader(open("assets/mecA.fasta")) do reader
@@ -104,35 +107,25 @@ NG_047945.1 Staphylococcus aureus TN/CN/1/12 mecA gene for ceftaroline-resistant
 ATGAAAAAGATAAAAATTGTTCCACTTATTTTAATAGTTGTAGTTGTCGGGTTTGGTATATATTTTTATGCTTCAAAAGATAAAGAAATTAATAATACTATTGATGCAATTGAAGATAAAAATTTCAAACAAGTTTATAAAGATAGCAGTTATATTTCTAAAAGCGATAATGGTGAAGTAGAAATGACTGAACGTCCGATAAAAATATATAATAGTTTAGGCGTTAAAGATATAAACATTCAGGATCGTAAAATAAAAAAAGTATCTAAAAATAAAAAACGAGTAGATGCTCAATATAAAATTAAAACAAACTACGGTAACATTGATCGCAACGTTCAATTTAATTTTGTTAAAGAAGATGGTATGTGGAAGTTAGATTGGGATCATAGCGTCATTATTCCAGGAATGCAGAAAGACCAAAGCATACATATTGAAAATTTAAAATCAGAACGTGGTAAAATTTTAGACCGAAACAATGTGGAATTGGCCAATACAGGAACAGCATATGAGATAGGCATCGTTCCAAAGAATGTATCTAAAAAAGATTATAAAGCAATCGCTAAAGAACTAAGTATTTCTGAAGACTATATCAAACAACAAATGGATCAAAATTGGGTACAAGATGATACCTTCGTTCCACTTAAAACCGTTAAAAAAATGGATGAATATTTAAGTGATTTCGCAAAAAAATTTCATCTTACAACTAATGAAACAAAAAGTCGTAACTATCCTCTAGAAAAAGCGACTTCACATCTATTAGGTTATGTTGGTCCCATTAACTCTGAAGAATTAAAACAAAAAGAATATAAAGGCTATAAAGATGATGCAGTTATTGGTAAAAAGGGACTCGAAAAACTTTACGATAAAAAGCTCCAACATGAAGATGGCTATCGTGTCACAATCGTTGACGATAATAGCAATACAATCGCACATACATTAATAGAGAAAAAGAAAAAAGATGGCAAAGATATTCAACTAACTATTGATGCTAAAGTTCAAAAGAGTATTTATAACAACATGAAAAATGATTATGGCTCAGGTACTGCTATCCACCCTCAAACAGGTGAATTATTAGCACTTGTAAGCACACCTTCATATGACGTCTATCCATTTATGTATGGCATGAGTAACGAAGAATATAATAAATTAACCGAAGATAAAAAAGAACCTCTGCTCAACAAGTTCCAGATTACAACTTCACCAGGTTCAACTCAAAAAATATTAACAGCAATGATTGGGTTAAATAACAAAACATTAGACGATAAAACAAGTTATAAAATCGATGGTAAAGGTTGGCAAAAAGATAAATCTTGGGGTGGTTACAACGTTACAAGATATGAAGTGGTAAATGGTAATATCGACTTAAAACAAGCAATAGAATCATCAGATAACATTTTCTTTGCTAGAGTAGCACTCGAATTAGGCAGTAAGAAATTTGAAAAAGGCATGAAAAAACTAGGTGTTGGTGAAGATATACCAAGTGATTATCCATTTTATAATGCTCAAATTTCAAACAAAAATTTAGATAATGAAATATTATTAGCTGATTCAGGTTACGGACAAGGTGAAATACTGATTAACCCAGTACAGATCCTTTCAATCTATAGCGCATTAGAAAATAATGGCAATATTAACGCACCTCACTTATTAAAAGACACGAAAAACAAAGTTTGGAAGAAAAATATTATTTCCAAAGAAAATATCAATCTATTAACTGATGGTATGCAACAAGTCGTAAATAAAACACATAAAGAAGATATTTATAGATCTTATGCAAACTTAATTGGCAAATCCGGTACTGCAGAACTCAAAATGAAACAAGGAGAAACTGGCAGACAAATTGGGTGGTTTATATCATATGATAAAGATAATCCAAACATGATGATGGCTATTAATGTTAAAGATGTACAAGATAAAGGAATGGCTAGCTACAATGCCAAAATCTCAGGTAAAGTGTATGATGAGCTATATGAGAACGGTAATAAAAAATACGATATAGATGAATAACAAAACAGTGAAGCAATCCGTAACGATGGTTGCTTCACTGTTTTATTATGAATTATTAATAAGTGCTGTTACTTCTCCCTTAAATACAATTTCTTCATTT
 2107
 ```
-We confirmed that the length of the gene matches what we'd expect for _mecA_. 
+We confirmed that the length of the gene matches what we'd expect for _mecA_.   
 In this case, there is only one sequence that spans the entire length of the gene.   
 After this gene was sequenced, all of the reads were assembled together into a single consensus sequence.      
-_mecA_ is a well-characterized gene, so there are no ambiguous regions, and there is no need for there to be multiple contigs  
-(AKA for the gene to be broken up into multiple pieces, as we know exactly how the reads should be assembled together.).  
-
+_mecA_ is a well-characterized gene, so there are no ambiguous regions,   
+and there is no need for there to be multiple contigs  
+(that is, for the gene to be broken into multiple pieces, since we know how the reads should be assembled).  
 
 Let's try reading in a larger FASTQ file. 
 
 The raw reads for a _Staphylococcus aureus_ isolate were sequenced with Illumina and uploaded to NCBI [here](https://trace.ncbi.nlm.nih.gov/Traces/index.html?run=SRR1050625).     
 The link to download the raw FASTQ files can be found [here](https://trace.ncbi.nlm.nih.gov/Traces/index.html?run=SRR1050625).
 
-The BioSample ID for this sample is `SAMN02360768`.
+The BioSample ID for this sample is `SAMN02360768`.  
 This ID refers to the physical bacterial isolate.  
 The SRA sample accession number (an internal value used within the Sequence Read Archive) is `SRS515580`.    
 Both values correspond to one another and are helpful identifiers. 
 
-The SRR (sample run accession number) is the unique identifier within SRA   
-and corresponds to the specific sequencing run.   
-There are two sequencing runs and accession numbers for this sample,   
-but we'll select one to download: `SRX392511`.  
-
-This file can be downloaded on the command line using `curl`.  
-> One of the nice things about julia is that it is 
-> super easy to toggle between the julia REPL and 
-> bash shell by typing `;` to access shell mode 
-> from julia.  
-> You can use the `backspace`/`delete` key to 
-> quickly toggle back to the julia REPL.  
+The SRA run accession (SRR) uniquely identifies a sequencing run.  
+This sample is associated with two runs, and for this example we will download data linked to experiment `SRX392511`.   
 
 To download using the command line, type:
 ```
@@ -140,7 +133,16 @@ curl -L --retry 5 --retry-delay 2 \
   "https://trace.ncbi.nlm.nih.gov/Traces/sra-reads-be/fastq?acc=SRX392511" \
   | gzip -c > SRX392511.fastq.gz
 ```
-Alternatively, command line code can be executed from within julia:
+Alternatively, command line code can be executed from within Julia:
+
+
+This file can be downloaded on the command line using `curl`.  
+> One of the nice things about Julia is that it is 
+> super easy to toggle between the Julia REPL and 
+> bash shell by typing `;` to access shell mode 
+> from Julia.  
+> You can use the `backspace`/`delete` key to 
+> quickly toggle back to the Julia REPL.  
 
 ```julia
 run(pipeline(
@@ -150,7 +152,8 @@ run(pipeline(
     )
 )
 ```
-This file is gzipped, so we'll need to account for that as we are reading it in.
+This file is gzipped, so we'll need to account for that as we are reading it in with `FASTX.jl`.  
+In Julia, we can decompress gzipped files using `CodecZlib.jl`.  
 
 Instead of printing out every record (this isn't super practical because it's a big file), let's save all the records into a vector.
 
@@ -166,7 +169,7 @@ FASTQReader(GzipDecompressorStream(open("assets/SRX392511.fastq.gz"))) do reader
        end
 ```
 
-We can see how many reads there are by looking at the length of `records`.
+We can see how many reads there are by looking at the length of the vector `records`.
 
 ```julia
 julia> length(records)
@@ -188,18 +191,15 @@ julia> records[1:10]
  FASTX.FASTQ.Record("SRX392511.4 4 length=101", "TTCGCCCCCCCAAAAGGCT…", "???????????????????…")
  FASTX.FASTQ.Record("SRX392511.5 5 length=101", "ATAAAATGAACTTGCGTTA…", "???????????????????…")
  FASTX.FASTQ.Record("SRX392511.5 5 length=101", "TAACTTGTGGATAATTATT…", "???????????????????…")
- ```
-
- All of the nucleotides in these two reads have a quality score of `$`, which corresponds to a probabilty of error of 0.50119.
- This is not concerning, as it is typical for the first couple of reads to be low quality.    
+ ```   
 
  Let's calculate the average quality across all reads. 
- We'll do this by converting each PHRED score to its probability error,   
- and summing these values across all sequences in all reads.  
+ We'll do this by converting each PHRED score to its error probability,   
+ and summing these values across all bases in all reads.  
  Then, we can divide this sum by the total number of bases  
- to get the average probability error for the entire sequence. 
+ to get the average probability across the entire dataset.   
  It's important that we first convert the PHRED scores to the probability errors before averaging,   
-because PHRED is a logarithmic transform of error probability.  
+because PHRED is a logarithmic transformation of error probability.  
 Therefore, simply averaging PHRED and then converting to error probability is not the same as converting PHRED to error probability and averaging that sum.  
 
 ```julia
@@ -214,7 +214,7 @@ total_error_prob = sum(
     for record in records
 )
 4.5100356107423276e7
-# get total number of base pairs
+# get total number of bases
 total_bases = sum(length(FASTQ.quality_scores(record)) for record in records)
 995124316
 
@@ -226,13 +226,10 @@ total_error_prob/total_bases
 The average error probability is just 4.53%,   
 meaning the majority of reads are high quality.  
 
- More information about how to convert ASCII values/PHRED scores to quality scores [here](https://people.duke.edu/~ccc14/duke-hts-2018/bioinformatics/quality_scores.html).  
+More information about converting ASCII characters and PHRED scores to quality scores can be found [here](https://people.duke.edu/~ccc14/duke-hts-2018/bioinformatics/quality_scores.html).  
  
-
-
-
  Now that we've learned how to read files in and manipulate them a bit,  
 let's see if we can align the _mecA_ gene to the _Staphylococcus aureus_ genome.  
-This will tell us if this _S. aureus_ is MRSA.  
+This will tell us if this particular _S. aureus_ is MRSA.  
 
 
