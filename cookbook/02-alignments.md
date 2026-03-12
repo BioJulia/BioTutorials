@@ -10,9 +10,6 @@ and look for regions of similarity.
 
 Pairwise alignment differs from multiple sequence alignment (MSA) because  
 it only aligns two sequences, while MSAs align three or more.  
-In a pairwise alignment, there is one reference sequence and one query sequence,   
-though this may not always be specified by the user.  
-
 
 ### Running the Alignment
 There are two main parameters for determining how we want to perform our alignment:     
@@ -27,14 +24,32 @@ Currently, four types of alignments are supported:
     - Aligns sequences end-to-end 
     - Best for sequences that are already very similar
     - All of query is aligned to all of reference
+    - Example use case:
+        - Comparing a particular gene from two closely related bacteria
+        - Comparing alleles of a gene between two individuals
+    - Not ideal when only one conserved region is shared
+
 - `SemiGlobalAlignment`: local-to-global alignment
     - A modification of global alignment that allows the user to specify that gaps are  penalty-free at the beginning of one of the sequences and/or at the end of one of the sequences (more information can be found [here](https://www.cs.cmu.edu/~durand/03-711/2023/Lectures/20231001_semi-global.pdf)).
+    - Example use case:
+        - Aligning a contig to a chromosome to see where that contig belongs
+        - Aligning a 150 bp Illumina read to a longer reference gene or chromosome segment
+    - A simple way to think about it: “the query should align completely, but the reference may have unaligned flanks.”
 - `LocalAlignment`: local-to-local alignment
     - Identifies high-similarity, conserved sub-regions within divergent sequences
     - Can occur anywhere in the alignment matrix
     - Maps the query sequence to the most similar region on the reference
+    - Example use case:
+        - Finding a conserved protein domain inside two otherwise divergent proteins
+        - Aligning a short resistance-gene fragment to a genome to see whether that region is present
+    - This is the right choice when you care about “where is the best shared region?” rather than “do these two full sequences match end-to-end?”
 - `OverlapAlignment`: end-free alignment
     - A modification of global alignment where gaps at the beginning or end of sequences are permitted
+    - Best when the biologically meaningful match is an end-to-end overlap between the two sequences, and terminal overhangs should not be penalized
+    - Example use case:
+        - Merging paired-end reads when the forward and reverse reads overlap
+        - Stitching amplicons or long reads that share an overlapping end region
+    - The key distinction from semi-global is that overlap alignment is especially for suffix/prefix-style overlaps between sequence ends, which is why it is so useful in assembly workflows.
 
 The alignment type should be selected based on what is already known about the sequences the user is comparing:   
 - Are the two sequences very similar and we're looking for a couple of small differences?   
@@ -49,8 +64,8 @@ and then finds the alignment that minimizes the total penalty.
 `AffineGapScoreModel` is the scoring model currently supported by `BioAlignments.jl`.  
 It imposes an affine gap penalty for insertions and deletions,     
 which means that it penalizes the opening of a gap more than a gap extending.  
-This aligns (pun intended!!) with the biological principle that creating a gap is a rare event,   
-while extending an already existing gap is less so.  
+Deletions are rare mutations, but if there's a deletion, the length of the deletion is variable.   
+Longer deletions are less likely than short ones only because they change the structure of the encoded protein more.  
 
 A user can also define their own `CostModel` instead of using `AffineGapScoreModel`.  
 This will allow the user to define their own scoring scheme for penalizing insertions, deletions, and substitutions.  
