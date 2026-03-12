@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // Set theme immediately to prevent flash
+    (function() {
+      const stored = localStorage.getItem('theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
+  
+   <link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github.min.css" id="hljs-light">
+<link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github-dark.min.css" id="hljs-dark" disabled>
+<script>
+  // Set initial highlight theme based on current theme
+  (function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.getElementById('hljs-light').disabled = isDark;
+    document.getElementById('hljs-dark').disabled = !isDark;
+  })();
+</script>
+   
+  <link rel="stylesheet" href="/BioTutorials/css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<link rel="icon" type="image/png" sizes="192x192" href="/BioTutorials/assets/favicon.png">
+<link rel="shortcut icon" href="/BioTutorials/assets/favicon.ico">
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="/BioTutorials/assets/apple-touch-icon.png">
+
+
+   <title>Problem 6: Counting Point Mutations - BioJulia</title>  
+</head>
+<body>
+  <header class="site-header">
+  <div class="header-content">
+    <div class="header-left">
+      <a href="https://biojulia.dev/BioTutorials" class="logo-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136.48101 51.472999" height="32" aria-label="BioJulia">
+          <g id="bubble-helix">
+            <circle cx="5.9792" cy="20.3" r="5.9792" fill="#945bb0"/>
+            <circle cx="21.317" cy="39.5" r="4.9393" fill="#4266d5"/>
+            <circle cx="16.378" cy="11.7" r="4.9393" fill="#c93d39"/>
+            <circle cx="35.095" cy="35.9" r="5.9792" fill="#945bb0"/>
+            <circle cx="47.184" cy="23.8" r="7.409" fill="#4266d5"/>
+            <circle cx="28.986" cy="9.7" r="4.5494" fill="#3b972e"/>
+            <circle cx="89.428" cy="46.5" r="4.9393" fill="#c93d39"/>
+            <circle cx="71.62" cy="5.6" r="5.5892" fill="#945bb0"/>
+            <circle cx="121.01" cy="15.5" r="5.5892" fill="#c93d39"/>
+            <circle cx="59.662" cy="30.3" r="2.4697" fill="#4266d5"/>
+            <circle cx="103.6" cy="19.9" r="3.2496" fill="#c93d39"/>
+            <circle cx="123.61" cy="36.5" r="2.7296" fill="#4266d5"/>
+            <circle cx="127.64" cy="5.2" r="3.8995" fill="#3b972e"/>
+            <circle cx="132.58" cy="39.2" r="3.8995" fill="#945bb0"/>
+            <circle cx="67.591" cy="37.4" r="3.3795" fill="#3b972e"/>
+            <circle cx="95.017" cy="13.9" r="4.2894" fill="#4266d5"/>
+            <circle cx="77.729" cy="42.9" r="3.8995" fill="#945bb0"/>
+            <circle cx="102.56" cy="42.0" r="5.8492" fill="#4266d5"/>
+            <circle cx="113.6" cy="28.8" r="6.7591" fill="#3b972e"/>
+            <circle cx="57.582" cy="11.0" r="6.3691" fill="#c93d39"/>
+            <circle cx="38.735" cy="14.8" r="3.3795" fill="#c93d39"/>
+            <circle cx="84.618" cy="7.9" r="5.3293" fill="#3b972e"/>
+          </g>
+        </svg>
+        <span>BioTutorials</span>
+      </a>
+    </div>
+    <nav class="header-nav">
+      <a href="/BioTutorials/">Tutorials</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+  <main class="franklin-content">
+
+<div class="franklin-content" >
+  <h1 id="problem_6_counting_point_mutations" ><a href="#problem_6_counting_point_mutations"> 🔬 Problem 6: Counting Point Mutations</a></h1><p>🤔 <a href="https://rosalind.info/problems/hamm/">Problem link</a></p>
+<blockquote><p><strong>The Problem</strong></p>
+<p>Given two strings s and t of equal length,
+the Hamming distance between s and t, denoted dH(s,t),
+is the number of corresponding symbols that differ in s and t.</p>
+<p><em>Given</em>: Two DNA strings s and t of equal length (not exceeding 1 kbp).</p>
+<p><em>Return</em>: The Hamming distance dH(s,t).</p>
+<p><strong>Sample Dataset</strong></p>
+<pre><code class="julia">GAGCCTACTAACGGGAT
+CATCGTAATGACGGCCT</code></pre>
+<p><strong>Sample Output</strong></p>
+<pre><code class="julia">7</code></pre>
+</blockquote><p>To calculate the Hamming Distance between two strings/sequences,
+the two strings/DNA sequences must be the same length.</p>
+<p>The simplest way to solve this problem is to compare the corresponding values in each string for each index and then sum the mismatches.
+This is the fastest and most idiomatic Julia solution, as it leverages vector math.</p>
+<pre><code class="julia">ex_seq_a = &quot;GAGCCTACTAACGGGAT&quot;
+ex_seq_b = &quot;CATCGTAATGACGGCCT&quot;
+
+count(i-&gt; ex_seq_a[i] != ex_seq_b[i], eachindex(ex_seq_a))  # 7</code></pre>
+<h3 id="for_loop" ><a href="#for_loop"> For Loop</a></h3><p>Another way we can approach this would be to use a for-loop.
+For loops are traditionally slower and clunkier (especially in Python).
+However, Julia can often optimize for-loops like this,
+which is one of the things that makes it so powerful.</p>
+<pre><code class="julia">function hamming(seq_a, seq_b)
+    if isempty(seq_a)
+        throw(ErrorException(&quot;empty sequences&quot;))
+    end
+    if length(seq_a) != length(seq_b)
+        throw(ErrorException(&quot;sequences have different lengths&quot;))
+    end
+
+    mismatches = 0
+    for i in 1:length(seq_a)
+        if seq_a[i] != seq_b[i]
+            mismatches += 1
+        end
+    end
+    return mismatches
+end
+
+hamming(ex_seq_a, ex_seq_b)  # 7</code></pre>
+<h2 id="bioalignments_method" ><a href="#bioalignments_method"> BioAlignments method</a></h2><p>Instead of writing your own function, an alternative would be to use the readily-available Hamming Distance <a href="https://github.com/BioJulia/BioAlignments.jl/blob/0f3cc5e1ac8b34fdde23cb3dca7afb9eb480322f/src/pairwise/algorithms/hamming_distance.jl#L4">function</a> in the <code>BioAlignments.jl</code> package.</p>
+<pre><code class="julia">using BioAlignments
+
+bio_hamming = BioAlignments.hamming_distance(Int64, ex_seq_a, ex_seq_b)
+bio_hamming[1]  # 7
+
+@assert hamming(ex_seq_a, ex_seq_b) == bio_hamming[1]</code></pre>
+<p>The BioAlignments <code>hamming_distance</code> function requires three input variables --
+the first of which allows the user to control the <code>type</code> of the returned hamming distance value.</p>
+<p>In the above example, <code>Int64</code> is provided as the first input variable,
+but <code>Float64</code> or <code>Int8</code> are also acceptable inputs.
+The second two input variables are the two sequences that are being compared.</p>
+<p>There are two outputs of this function:
+the actual Hamming Distance value and the Alignment Anchor.
+The Alignment Anchor is a one-dimensional array (vector) that is the same length as the length of the input strings.</p>
+<p>Each value in the vector is also an AlignmentAnchor with three fields:
+sequence position, reference position, and an operation code
+('0' for start, '=' for match, 'X' for mismatch).</p>
+<p>The Alignment Anchor for the above example is:</p>
+<pre><code class="julia">AlignmentAnchor[
+    AlignmentAnchor(0, 0, '0'),
+    AlignmentAnchor(1, 1, 'X'),
+    AlignmentAnchor(2, 2, '='),
+    AlignmentAnchor(3, 3, 'X'),
+    AlignmentAnchor(4, 4, '='),
+    AlignmentAnchor(5, 5, 'X'),
+    AlignmentAnchor(7, 7, '='),
+    AlignmentAnchor(8, 8, 'X'),
+    AlignmentAnchor(9, 9, '='),
+    AlignmentAnchor(10, 10, 'X'),
+    AlignmentAnchor(14, 14, '='),
+    AlignmentAnchor(16, 16, 'X'),
+    AlignmentAnchor(17, 17, '=')]</code></pre>
+<h3 id="distances.jl_method" ><a href="#distances.jl_method"> Distances.jl method</a></h3><p>Another package that calculates the Hamming distance is the <a href="https://github.com/JuliaStats/Distances.jl">Distances package</a>.
+We can call its <code>hamming</code> function on our two test sequences:</p>
+<pre><code class="julia">using Distances
+
+Distances.hamming(ex_seq_a, ex_seq_b)  # 7</code></pre>
+<h2 id="benchmarking" ><a href="#benchmarking"> Benchmarking</a></h2><p>Let's test to see which method is the most efficient!</p>
+<pre><code class="julia">using BenchmarkTools
+using BioSequences
+
+testseq1 = string(randdnaseq(100_000))
+testseq2 = string(randdnaseq(100_000))
+
+@benchmark hamming($testseq1, $testseq2)
+@benchmark BioAlignments.hamming_distance(Int64, $testseq1, $testseq2)
+@benchmark Distances.hamming($testseq1, $testseq2)</code></pre>
+<p>The BioAlignments method takes up a much larger amount of memory,
+and nearly three times as long to run.
+However, it also generates an <code>AlignmentAnchor</code> data structure each time the function is called,
+so this is not a fair comparison.
+The <code>Distances</code> package is the winner here, which makes sense,
+as it uses a vectorized approach.</p>
+
+  <footer class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> BioJulia Developers
+   · Last modified: 
+  <br>
+  Built with <a href="https://github.com/tlienart/Xranklin.jl">Xranklin.jl</a>
+</footer>
+
+</div>
+
+  </main>
+  
+  
+    <script src="/BioTutorials/libs/highlight/julia-custom.min.js"></script>
+<script>
+  // Configure highlight.js to recognize Xranklin's class format
+  document.querySelectorAll('pre code').forEach((el) => {
+    if (el.className && !el.className.startsWith('language-')) {
+      el.classList.add('language-' + el.className.split(' ')[0]);
+    }
+  });
+  hljs.highlightAll();
+</script>
+
+  
+  <script>
+    // Theme toggle functionality
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      if (!toggle) return;
+
+      function getSystemTheme() {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+      function getCurrentTheme() {
+        const stored = localStorage.getItem('theme');
+        if (stored) return stored;
+        return getSystemTheme();
+      }
+
+      function updateHighlightTheme(isDark) {
+        const lightStyle = document.getElementById('hljs-light');
+        const darkStyle = document.getElementById('hljs-dark');
+        if (lightStyle && darkStyle) {
+          lightStyle.disabled = isDark;
+          darkStyle.disabled = !isDark;
+        }
+      }
+
+      toggle.addEventListener('click', function() {
+        const current = getCurrentTheme();
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateHighlightTheme(next === 'dark');
+      });
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+          // Only update if user hasn't manually set a preference
+          document.documentElement.removeAttribute('data-theme');
+          updateHighlightTheme(e.matches);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
