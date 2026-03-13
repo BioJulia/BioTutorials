@@ -228,8 +228,7 @@ meaning the majority of reads are high quality.
 
 More information about converting ASCII characters and PHRED scores to quality scores can be found [here](https://people.duke.edu/~ccc14/duke-hts-2018/bioinformatics/quality_scores.html).  
  
- Now that we've learned how to read files in and manipulate them a bit,  
-let's see if we can align the _mecA_ gene to the _Staphylococcus aureus_ genome.  
-This will tell us if this particular _S. aureus_ is MRSA.  
+Now that we've learned how to read files in and manipulate them a bit,  
+let's see if we can align 2 _mecA_ genes to compare them.  
 
 
