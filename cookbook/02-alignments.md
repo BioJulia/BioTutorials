@@ -4,24 +4,29 @@ rss_descr = "Align a gene against a reference genome using BioAlignments.jl"
 +++
 
 As mentioned in the previous [tutorial]("../01-sequences.md"), in this chapter, we will learn about alignments.    
-We will explore pair-wise alignment as a tool to compare two copies of the _mecA_ gene found on NCBI.  
+We will explore pairwise alignment as a tool to compare two copies of the _mecA_ gene found on NCBI.  
 
 # Pairwise Alignment
 
-On the most basic level, aligners take two sequences and use algorithms to try to "line them up" 
+On the most basic level, aligners use algorithms to "line up" sequences
 and look for regions of similarity.  
 
+BioAlignments implements only pairwise alignment.  
 Pairwise alignment differs from multiple sequence alignment (MSA) because  
-it only aligns two sequences, while MSAs align three or more.  
+it only aligns two sequences, while MSAs align any number of sequences.  
 
-### Running the Alignment
-There are two main parameters for determining how we want to perform our alignment:     
-the alignment type and score/cost model.  
+Pairwise alignment also assumes that the two sequences are roughly homologous.   
+For example, you may use it to align two versions of the same gene.  
+It is not used to map reads to a genome -- mapping would be a better solution for that.  
+
+# Running the Alignment
+There are two main parameters for determining how we want to perform our alignment:      
+alignment type and score/cost model.  
 
 The alignment type specifies the alignment range (local vs global alignment)  
-and the score/cost model explains how to score insertions and deletions.   
+and the score/cost model explains how to score matches/mismatches in the sequences that are being compared. 
 
-#### Alignment Types
+### Alignment Types
 Currently, four types of alignments are supported:
 - `GlobalAlignment`: global-to-global alignment
     - Aligns sequences end-to-end 
@@ -66,7 +71,7 @@ The cost model provides a way to calculate penalties for differences between the
 and then finds the alignment that minimizes the total penalty.   
 `AffineGapScoreModel` is the scoring model currently supported by `BioAlignments.jl`.  
 It imposes an affine gap penalty for insertions and deletions,     
-which means that it penalizes the opening of a gap more than a gap extending.  
+which means that it penalizes the opening of a gap more than a gap extension.  
 Deletions are rare mutations, but if there's a deletion, the length of the deletion is variable.   
 Longer deletions are less likely than short ones only because they change the structure of the encoded protein more.  
 
@@ -80,29 +85,29 @@ These distance metrics are currently supported:
 - `LevenshteinDistance`
 - `HammingDistance`
 
-This is a complicated topic, and more information can be found in the BioAlignments documentation about the cost model [here](https://biojulia.dev/BioAlignments.jl/stable/pairalign/).  
+More information can be found in the BioAlignments documentation about the cost model [here](https://biojulia.dev/BioAlignments.jl/stable/pairalign/).  
 
 Just like alignment type, the cost model should be selected based on what the user is optimizing for  
 and what is known about the two sequences.    
 
 
-### Calling BioAlignments to Run the Alignment
+## Calling BioAlignments to Run the Alignment
 
 Now that we have a good understanding of how `pairalign` works, let's run an example!
 
-In this example, we'll compare two similar genes: mecA found in _S. aureus_ ([link to gene on NCBI here](https://www.ncbi.nlm.nih.gov/nuccore/NG_047945.1)), and a homologue, mecA1,  found on a _S. sciuri_ ([link to gene on NCBI here](https://www.ncbi.nlm.nih.gov/gene/?term=PBP2a+family+beta-lactam-resistant+peptidoglycan+transpeptidase+MecA1)).  
-The two Staphs are closely related species in the same _Staphylococcaceae_ family. 
+In this example, we'll compare two similar genes: _mecA_ found in _S. aureus_ ([link to gene on NCBI here](https://www.ncbi.nlm.nih.gov/nuccore/NG_047945.1)), and a homologue, _mecA1_,  found in _S. sciuri_ ([link to gene on NCBI here](https://www.ncbi.nlm.nih.gov/gene/?term=PBP2a+family+beta-lactam-resistant+peptidoglycan+transpeptidase+MecA1)).  
+These genes are found in two Staph species that are closely related and in the same  family (_Staphylococcaceae_). 
 
 Because we are comparing homologous genes from two closely related species, we wouldn't expect too many differences.  
-Although mecA1 doesn't confer resistance to beta-lactams in _S. sciuri_ like _mecA_ does to _S. aureus_,   
+Although _mecA1_ doesn't confer resistance to beta-lactams in _S. sciuri_ like _mecA_ does to _S. aureus_,   
 the gene should be mostly conserved. 
-In fact, mecA1 is considered a pre-cursor to mecA.    
-Research indicates that there is 80% nucleotide identity between the two genes.[1]. 
+In fact, _mecA1_ is considered a precursor to _mecA_ [1].    
+Research indicates that there is 80% nucleotide identity between the two genes [1]. 
 Due to the similarity in the genes we are comparing, it makes the most sense to run a global alignment.    
 
 In this first example, we'll align two strings that contain the genes.  
 
-#### Running Alignment on BioSequences Object
+## Running Alignment on BioSequences Object
 
 ```julia
 using BioAlignments
@@ -112,24 +117,26 @@ mecA =
 mecA1 = "ATGAAAAAATTAATCATCGCCATCGTGATTGTAATCATCGCTGTTGGTTCAGGCGTATTCTTTTATGCATCTAAAGATAAGAAAATAAACGAAACAATTGATGCCATTGAAGATAAAAACGTTAAGCAAGTCTTTAAAAATAGTACTTACCAATCTAAAAACGATAATGGTGAAGTAGAAATGACAGACCGCCCTATTAAGATTTATGACAGTCTCGGCGTCAAAGATATCAACATTAAAGATCGTGATATCAAAAAGGTTTCGAAAAACAAAAAACAAGTCACAGCAAAGTATGAACTTCAAACGAATTACGGCAAAATTAATCGTGACGTTAAATTAAACTTTATTAAAGAAGATAAAGATTGGAAATTGGATTGGAATCAAAATGCCATTATTCCAGGCATGAAGAAAAATCAATCCATCAATATTGAACCATTGAAATCAGAACGAGGTAAGATTTTAGACAGGAACAATGTAGAGTTAGCCACTACAGGAACAACACATGAAGTTGGTATTGTTCCTAATAATGTTTCCACAAGTGATTACAAAGCAATCGCTGAAAAGTTAGACCTTTCAGAATCGTATATTAAACAGCAAACAGAACAGGATTGGGTTAAAGATGATACATTCGTCCCTCTCAAGACTGTTCAAGATATGAATCAAGATTTAAAGAATTTTGTTGAAAAGTATCATCTCACATCACAGGAAACAGAAAGTCGACAGTATCCGCTTGAAGAAGCAACAACGCACTTACTTGGATATGTTGGCCCTATTAATTCAGAAGAATTGAAGCAAAAAGCATTTAAAGGTTATAAAAAGGATGCCATCGTTGGTAAAAAAGGTATCGAAAAACTATACGATAAAGACCTTCAAAATAAAGACGGATACCGTGTCACAATAATTGATGATAATAATAAAGTTATTGATACATTAATAGAGAAAAAGAAAATAGACGGCAAAGATATTAAATTAACCATTGATGCTAGAGTCCAAAAAAGTATTTATAACAACATGAAAGATGACTACGGTTCGGGGACTGCTATTCATCCACAAACTGGTGAACTCTTAGCACTTGTCAGCACGCCATCTTATGATGTTTATCCATTTATGAATGGAATGAGCGATGAAGATTATAAGAAATTAACTGAAGATGATAAAGAGCCACTCCTTAATAAGTTCCAAATTACGACATCACCAGGTTCGACTCAAAAAATATTAACAGCCATGATTGGCTTAAACAATAAGACATTAGACGGCAAAACAAGTTATAAAATTAATGGAAAAGGTTGGCAAAAAGATAAATCTTGGGGTGACTACAACGTTACAAGATACGAAGTTGTGAATGCCGATATCGACTTAAAACAAGCTATTGAATCATCAGATAATATCTTCTTTGCGAGAGTTGCACTTGAATTAGGCAGCAAAAAATTCGAAGAAGGAATGAAACGCCTTGGTGTTGGTGAAGATATCCCGAGTGATTATCCATTCTACAATGCACAAATTTCAAATAAGAACTTAGATAATGAAATATTGTTAGCTGACTCAGGTTATGGCCAAGGTGAAATATTAATCAATCCTGTTCAAATTCTTTCAATATACAGCGCATTAGAGAACAAAGGTAATGTGAATGCACCACATGTACTCAAAGATACGAAAAATAAAGTCTGGAAGAAGAACATCATTTCCCAGGAAAATATTAAATTGTTAACAGACGGTATGCAACAAGTCGTGAACAAAACACATAGAGAAGATATTTATAGATCATATGCCAACTTAGTTGGTAAATCAGGTACAGCTGAACTCAAGATGAAACAAGGTGAGACAGGACAACAAATAGGTTGGTTCATTTCATATGATAAAGATAATCCAAATATAATGATGGCTATTAATGTGAAAGATGTACAAGATAAAGGCATGGCAAGTTACAATGCCAAAATATCTGGAAAAGTGTATGACGATTTATATGATAACGGTAAGAAAACGTATCGTATTGATAAATAA"
 scoremodel = AffineGapScoreModel(EDNAFULL, gap_open=-5, gap_extend=-1);
 
+# run pairwise alignment
 res = pairalign(GlobalAlignment(), mecA, mecA1, scoremodel)  
-  # run pairwise alignment
 ```
 
 
-#### Running Alignment on FASTX files
+## Running Alignment on FASTX files
 In this next example, we'll repeat the same alignment,   
 but read in the files directly from the FASTA files containing the gene.    
-Running the alignment on strings is straightforward with short sequences,   but when comparing entire genes, simply reading in the file is easier.  
+Running the alignment on strings is straightforward with short sequences,   
+but when comparing entire genes, simply reading in the file is easier.  
 ```julia
 using BioSequences
 using FASTX
 
-# Write a function to get sequence out of a fasta file with 1 record
+# Function to get a sequence from a FASTA file with one record
 function fasta_sequence(fasta_path)
     record = open(FASTA.Reader, fasta_path) do reader
         first(reader)
     end
+    # extract sequence and convert to BioSequences DNA object
     seq = LongDNA{4}(String(FASTX.sequence(record)))
     return (seq)
 end
@@ -137,11 +144,12 @@ end
 mecA_fasta = fasta_sequence("assets/mecA.fasta")
 mecA1_fasta = fasta_sequence("assets/mecA1.fasta")
 
-res_fasta = pairalign(GlobalAlignment(), mecA_fasta, mecA1_fasta, scoremodel)  # run pairwise alignment
+ # run pairwise alignment
+res_fasta = pairalign(GlobalAlignment(), mecA_fasta, mecA1_fasta, scoremodel) 
 ```
 
 
-### Understanding how Alignments are Represented
+### Understanding How Alignments Are Represented
 The output of an alignment is a series of `AlignmentAnchor` objects.  
 This data structure gives information on the position of the start of the alignment,   
 sections where nucleotides match, as well as where there may be deletions or insertions.  
@@ -157,17 +165,19 @@ julia> Alignment([
 In this example, the alignment starts at position 0 for the query sequence and position 4 for the reference sequence.  
 Although the Julia programming language typically uses 1-based indexing,   
 this package uses position 0 to refer to the first position.  
-The next nucleotides are a match in the query and reference sequences.     
+The next nucleotides match in the query and reference sequences.     
 The last 8 nucleotides in the alignment are deleted in the query sequence.  
 
 To learn more about the output of the alignment created using BioAlignments.jl, see [here](https://biojulia.dev/BioAlignments.jl/stable/alignments/). 
 
 
-#### Interpreting the Example Output
-```
-# run pairwise alignment
+## Interpreting the Example Output
 
-       res
+Here is the output from our example aligning the _mecA_ and _mecA1_ genes:
+
+```
+res
+
 PairwiseAlignmentResult{Int64, String, String}:
   score: 6375
   seq:    1 ATGAAAAAGATAAAA-ATTGTTCCA-CTT-ATTTTAAT-A-----GTTGTAGTTGTCGGG   51
@@ -319,19 +329,22 @@ PairwiseAlignmentResult{Int64, String, String}:
   ref: 2001 -- 2001
 ```
 
-The score returned is entirely dependent on the scoring scheme 
-(how we penalized gaps, gap extensions and rewarded matches). 
+The alignment score is entirely dependent on the scoring scheme  
+(how we penalized gaps, gap extensions and rewarded matches).   
 It is not an absolute number that we can compare from alignment to alignment.  
-In our example, our score was influenced by -5 for the start of a gap, and -1 for a gap extension.  
-If these values were to change, we would get a different score.  
-However, generally, longer alignments produce larger scores (as there are more bases being compared).  
+In our example, our score was influenced by a -5 penalty for the start of a gap, and a -1 penalty for a gap extension.  
+If these values were to change in our cost model,   
+this would affect the final score, even if the sequences were the same.  
+However, longer alignments generally produce larger scores  
+(as there are more bases being compared).  
 
 Overall, the two sequences are homologous over most of their length.  
-There are many matches, but there are frequent small indels and substitutions.  
-The biggest mismatch is in a section toward the end,   
-where there are large stretches that are missing in the reference sequence (mecA1).  
+There are many matches, but also frequent small indels and substitutions.  
+The biggest mismatch is in a section toward the end  
+(from base 1980 in the reference onwards),   
+where there are large stretches that are missing in the reference sequence (_mecA1_).  
 
 ### Citations
 
-[1]: Rolo J, Worning P, Boye Nielsen J, Sobral R, Bowden R, Bouchami O, Damborg P, Guardabassi L, Perreten V, Westh H, Tomasz A, de Lencastre H, Miragaia M. Evidence for the evolutionary steps leading to mecA-mediated β-lactam resistance in staphylococci. PLoS Genet. 2017 Apr 10;13(4):e1006674. doi: 10.1371/journal.pgen.1006674. PMID: 28394942; PMCID: PMC5402963. [link to the source](10.1371/journal.pgen.1006674=).
+[1]: Rolo J, Worning P, Boye Nielsen J, Sobral R, Bowden R, Bouchami O, Damborg P, Guardabassi L, Perreten V, Westh H, Tomasz A, de Lencastre H, Miragaia M. Evidence for the evolutionary steps leading to mecA-mediated β-lactam resistance in staphylococci. PLoS Genet. 2017 Apr 10;13(4):e1006674. doi: 10.1371/journal.pgen.1006674. PMID: 28394942; PMCID: PMC5402963. [link to the source](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006674).
 
