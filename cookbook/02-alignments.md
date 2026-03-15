@@ -6,18 +6,20 @@ rss_descr = "Align a gene against a reference genome using BioAlignments.jl"
 As mentioned in the previous [tutorial]("../01-sequences.md"), in this chapter, we will learn about alignments.    
 We will explore pairwise alignment as a tool to compare two copies of the _mecA_ gene found on NCBI.  
 
-# Pairwise Alignment
+# `BioAlignments` Implements Only Pairwise Alignment
 
 On the most basic level, aligners use algorithms to "line up" sequences
 and look for regions of similarity.  
 
-BioAlignments implements only pairwise alignment.  
+`BioAlignments` implements pairwise alignment.  
 Pairwise alignment differs from multiple sequence alignment (MSA) because  
 it only aligns two sequences, while MSAs align any number of sequences.  
+There is not currently a MSA package in Julia.    
 
 Pairwise alignment also assumes that the two sequences are roughly homologous.   
 For example, you may use it to align two versions of the same gene.  
 It is not used to map reads to a genome -- mapping would be a better solution for that.  
+If mapping is your goal, you can use a mapper like `minimap2` and parse the result with `PairwiseMappingFormat.jl`.  
 
 # Running the Alignment
 There are two main parameters for determining how we want to perform our alignment:      
@@ -26,7 +28,7 @@ alignment type and score/cost model.
 The alignment type specifies the alignment range (local vs global alignment)  
 and the score/cost model explains how to score matches/mismatches in the sequences that are being compared. 
 
-### Alignment Types
+## Alignment Types
 Currently, four types of alignments are supported:
 - `GlobalAlignment`: global-to-global alignment
     - Aligns sequences end-to-end 
@@ -65,7 +67,7 @@ The alignment type should be selected based on what is already known about the s
 - Are we looking at two sequences from wildly divergent organisms?   
 
 
-### Cost Model
+## Cost Model
 
 The cost model provides a way to calculate penalties for differences between the two sequences,  
 and then finds the alignment that minimizes the total penalty.   
@@ -107,7 +109,7 @@ Due to the similarity in the genes we are comparing, it makes the most sense to 
 
 In this first example, we'll align two strings that contain the genes.  
 
-## Running Alignment on BioSequences Object
+## Aligning BioSequences Object
 
 ```julia
 using BioAlignments
@@ -122,7 +124,7 @@ res = pairalign(GlobalAlignment(), mecA, mecA1, scoremodel)
 ```
 
 
-## Running Alignment on FASTX files
+## Aligning FASTX files
 In this next example, we'll repeat the same alignment,   
 but read in the files directly from the FASTA files containing the gene.    
 Running the alignment on strings is straightforward with short sequences,   
@@ -149,7 +151,7 @@ res_fasta = pairalign(GlobalAlignment(), mecA_fasta, mecA1_fasta, scoremodel)
 ```
 
 
-### Understanding How Alignments Are Represented
+# Understanding How Alignments Are Represented
 The output of an alignment is a series of `AlignmentAnchor` objects.  
 This data structure gives information on the position of the start of the alignment,   
 sections where nucleotides match, as well as where there may be deletions or insertions.  
