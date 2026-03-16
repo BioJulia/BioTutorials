@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // Set theme immediately to prevent flash
+    (function() {
+      const stored = localStorage.getItem('theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
+  
+   <link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github.min.css" id="hljs-light">
+<link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github-dark.min.css" id="hljs-dark" disabled>
+<script>
+  // Set initial highlight theme based on current theme
+  (function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.getElementById('hljs-light').disabled = isDark;
+    document.getElementById('hljs-dark').disabled = !isDark;
+  })();
+</script>
+   
+  <link rel="stylesheet" href="/BioTutorials/css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<link rel="icon" type="image/png" sizes="192x192" href="/BioTutorials/assets/favicon.png">
+<link rel="shortcut icon" href="/BioTutorials/assets/favicon.ico">
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="/BioTutorials/assets/apple-touch-icon.png">
+
+
+   <title>Sequence Input/Output - BioJulia</title>  
+</head>
+<body>
+  <header class="site-header">
+  <div class="header-content">
+    <div class="header-left">
+      <a href="https://biojulia.dev/BioTutorials" class="logo-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136.48101 51.472999" height="32" aria-label="BioJulia">
+          <g id="bubble-helix">
+            <circle cx="5.9792" cy="20.3" r="5.9792" fill="#945bb0"/>
+            <circle cx="21.317" cy="39.5" r="4.9393" fill="#4266d5"/>
+            <circle cx="16.378" cy="11.7" r="4.9393" fill="#c93d39"/>
+            <circle cx="35.095" cy="35.9" r="5.9792" fill="#945bb0"/>
+            <circle cx="47.184" cy="23.8" r="7.409" fill="#4266d5"/>
+            <circle cx="28.986" cy="9.7" r="4.5494" fill="#3b972e"/>
+            <circle cx="89.428" cy="46.5" r="4.9393" fill="#c93d39"/>
+            <circle cx="71.62" cy="5.6" r="5.5892" fill="#945bb0"/>
+            <circle cx="121.01" cy="15.5" r="5.5892" fill="#c93d39"/>
+            <circle cx="59.662" cy="30.3" r="2.4697" fill="#4266d5"/>
+            <circle cx="103.6" cy="19.9" r="3.2496" fill="#c93d39"/>
+            <circle cx="123.61" cy="36.5" r="2.7296" fill="#4266d5"/>
+            <circle cx="127.64" cy="5.2" r="3.8995" fill="#3b972e"/>
+            <circle cx="132.58" cy="39.2" r="3.8995" fill="#945bb0"/>
+            <circle cx="67.591" cy="37.4" r="3.3795" fill="#3b972e"/>
+            <circle cx="95.017" cy="13.9" r="4.2894" fill="#4266d5"/>
+            <circle cx="77.729" cy="42.9" r="3.8995" fill="#945bb0"/>
+            <circle cx="102.56" cy="42.0" r="5.8492" fill="#4266d5"/>
+            <circle cx="113.6" cy="28.8" r="6.7591" fill="#3b972e"/>
+            <circle cx="57.582" cy="11.0" r="6.3691" fill="#c93d39"/>
+            <circle cx="38.735" cy="14.8" r="3.3795" fill="#c93d39"/>
+            <circle cx="84.618" cy="7.9" r="5.3293" fill="#3b972e"/>
+          </g>
+        </svg>
+        <span>BioTutorials</span>
+      </a>
+    </div>
+    <nav class="header-nav">
+      <a href="/BioTutorials/">Tutorials</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+  <main class="franklin-content">
+
+<div class="franklin-content" >
+  <h1 id="sequence_input/output" ><a href="#sequence_input/output"> Sequence Input/Output</a></h1><p>In this chapter, we'll discuss how to read in sequence files using the <code>FASTX.jl</code> package.   
+More information about the <code>FASTX.jl</code> package can be found at https://biojulia.dev/FASTX.jl/stable/  
+and with the built-in documentation you can access directly within the Julia REPL. </p>
+<pre><code class="julia">julia&gt; using FASTX
+julia&gt; ?FASTX</code></pre>
+<p>If <code>FASTX</code> is not already in your environment,   
+it can be easily added from the Julia Registry.</p>
+<p>To demonstrate how to use this package,   
+let's try to read in some real-world data!   </p>
+<p>The <code>FASTX</code> package can read in three file types: <code>fasta</code>, <code>fastq</code>, and <code>fai</code>.</p>
+<h3 id="fasta_files" ><a href="#fasta_files"> FASTA files</a></h3><p>FASTA files are text files containing biological sequence data.       
+They contain three parts: <code>identifier</code>, <code>description</code>, and <code>sequence</code>.</p>
+<p>The template of a sequence record is:</p>
+<pre><code class="julia">&gt;&lbrace;description&rbrace;
+&lbrace;sequence&rbrace;</code></pre>
+<p>The <code>identifier</code> is the first part of the <code>description</code> until the first whitespace.     
+If there is no whitespace, the <code>identifier</code> and <code>description</code> are the same.</p>
+<p>Here is an example fasta:</p>
+<pre><code class="julia">&gt;chrI chromosome 1
+CCACACCACACCCACACACCCACACACCACACCACACACCACACCACACC
+CACACACACACATCCTAACACTACCCTAACACAGCCCTAATCTA</code></pre>
+<h3 id="fastq_files" ><a href="#fastq_files"> FASTQ files</a></h3><p>FASTQ files are also text-based files that contain sequences, along with an identifier and description.   
+However, they also store sequence quality information (the Q is for quality!).</p>
+<p>The template of a sequence record is:</p>
+<pre><code class="julia">@&lbrace;description&rbrace;
+&lbrace;sequence&rbrace;
++&lbrace;description&rbrace;?
+&lbrace;qualities&rbrace;</code></pre>
+<p>Here is an example record:</p>
+<pre><code class="julia">@FSRRS4401BE7HA
+tcagTTAAGATGGGAT
++
+###EEEEEEEEE##E#</code></pre>
+<h3 id="fai_files" ><a href="#fai_files"> FAI files</a></h3><p>FAI (FASTA index) files are used in conjunction with FASTA or FASTQ files.   
+They are text files with TAB-delimited columns.  
+They allow the user to access specific regions of the reference FASTA/FASTQ without reading in the entire sequence into memory.      
+More information about fai index files can be found <a href="https://www.htslib.org/doc/faidx.html">here</a>.</p>
+<pre><code class="julia">NAME	Name of this reference sequence
+LENGTH	Total length of this reference sequence, in bases
+OFFSET	Offset in the FASTA/FASTQ file of this sequence's first base
+LINEBASES	The number of bases on each line
+LINEWIDTH	The number of bytes in each line, including the newline
+QUALOFFSET	Offset of sequence's first quality within the FASTQ file</code></pre>
+<p>We will read in a FASTA file containing the <em>mecA</em> gene.   
+<em>mecA</em> is an antibiotic resistance gene commonly found in methicillin-resistant <em>Staphylococcus aureus</em> (MRSA).   
+It encodes an alternative penicillin-binding protein that allows the bacteria to resist beta-lactam antibiotics like methicillin.  
+It is typically 2.1 kB long.  
+This specific reference fasta was downloaded from NCBI <a href="https://www.ncbi.nlm.nih.gov/nuccore/NG_047945.1?report=fasta">here</a>.  
+ More information about this reference sequence can be found <a href="https://www.ncbi.nlm.nih.gov/nuccore/NG_047945.1">here</a>.  </p>
+<p>First we'll open the file.   
+Then we'll iterate over every record in the file and print the sequence identifier,  
+description and then the corresponding sequence.</p>
+<pre><code class="julia">julia&gt; FASTAReader(open(&quot;assets/mecA.fasta&quot;)) do reader
+           for record in reader
+               println(identifier(record))
+               println(description(record))
+               println(sequence(record))
+               println(length(sequence(record)))
+           end
+       end
+
+NG_047945.1
+NG_047945.1 Staphylococcus aureus TN/CN/1/12 mecA gene for ceftaroline-resistant PBP2a family peptidoglycan transpeptidase MecA, complete CDS
+ATGAAAAAGATAAAAATTGTTCCACTTATTTTAATAGTTGTAGTTGTCGGGTTTGGTATATATTTTTATGCTTCAAAAGATAAAGAAATTAATAATACTATTGATGCAATTGAAGATAAAAATTTCAAACAAGTTTATAAAGATAGCAGTTATATTTCTAAAAGCGATAATGGTGAAGTAGAAATGACTGAACGTCCGATAAAAATATATAATAGTTTAGGCGTTAAAGATATAAACATTCAGGATCGTAAAATAAAAAAAGTATCTAAAAATAAAAAACGAGTAGATGCTCAATATAAAATTAAAACAAACTACGGTAACATTGATCGCAACGTTCAATTTAATTTTGTTAAAGAAGATGGTATGTGGAAGTTAGATTGGGATCATAGCGTCATTATTCCAGGAATGCAGAAAGACCAAAGCATACATATTGAAAATTTAAAATCAGAACGTGGTAAAATTTTAGACCGAAACAATGTGGAATTGGCCAATACAGGAACAGCATATGAGATAGGCATCGTTCCAAAGAATGTATCTAAAAAAGATTATAAAGCAATCGCTAAAGAACTAAGTATTTCTGAAGACTATATCAAACAACAAATGGATCAAAATTGGGTACAAGATGATACCTTCGTTCCACTTAAAACCGTTAAAAAAATGGATGAATATTTAAGTGATTTCGCAAAAAAATTTCATCTTACAACTAATGAAACAAAAAGTCGTAACTATCCTCTAGAAAAAGCGACTTCACATCTATTAGGTTATGTTGGTCCCATTAACTCTGAAGAATTAAAACAAAAAGAATATAAAGGCTATAAAGATGATGCAGTTATTGGTAAAAAGGGACTCGAAAAACTTTACGATAAAAAGCTCCAACATGAAGATGGCTATCGTGTCACAATCGTTGACGATAATAGCAATACAATCGCACATACATTAATAGAGAAAAAGAAAAAAGATGGCAAAGATATTCAACTAACTATTGATGCTAAAGTTCAAAAGAGTATTTATAACAACATGAAAAATGATTATGGCTCAGGTACTGCTATCCACCCTCAAACAGGTGAATTATTAGCACTTGTAAGCACACCTTCATATGACGTCTATCCATTTATGTATGGCATGAGTAACGAAGAATATAATAAATTAACCGAAGATAAAAAAGAACCTCTGCTCAACAAGTTCCAGATTACAACTTCACCAGGTTCAACTCAAAAAATATTAACAGCAATGATTGGGTTAAATAACAAAACATTAGACGATAAAACAAGTTATAAAATCGATGGTAAAGGTTGGCAAAAAGATAAATCTTGGGGTGGTTACAACGTTACAAGATATGAAGTGGTAAATGGTAATATCGACTTAAAACAAGCAATAGAATCATCAGATAACATTTTCTTTGCTAGAGTAGCACTCGAATTAGGCAGTAAGAAATTTGAAAAAGGCATGAAAAAACTAGGTGTTGGTGAAGATATACCAAGTGATTATCCATTTTATAATGCTCAAATTTCAAACAAAAATTTAGATAATGAAATATTATTAGCTGATTCAGGTTACGGACAAGGTGAAATACTGATTAACCCAGTACAGATCCTTTCAATCTATAGCGCATTAGAAAATAATGGCAATATTAACGCACCTCACTTATTAAAAGACACGAAAAACAAAGTTTGGAAGAAAAATATTATTTCCAAAGAAAATATCAATCTATTAACTGATGGTATGCAACAAGTCGTAAATAAAACACATAAAGAAGATATTTATAGATCTTATGCAAACTTAATTGGCAAATCCGGTACTGCAGAACTCAAAATGAAACAAGGAGAAACTGGCAGACAAATTGGGTGGTTTATATCATATGATAAAGATAATCCAAACATGATGATGGCTATTAATGTTAAAGATGTACAAGATAAAGGAATGGCTAGCTACAATGCCAAAATCTCAGGTAAAGTGTATGATGAGCTATATGAGAACGGTAATAAAAAATACGATATAGATGAATAACAAAACAGTGAAGCAATCCGTAACGATGGTTGCTTCACTGTTTTATTATGAATTATTAATAAGTGCTGTTACTTCTCCCTTAAATACAATTTCTTCATTT
+2107</code></pre>
+<p>We confirmed that the length of the gene matches what we'd expect for <em>mecA</em>.   
+In this case, there is only one sequence that spans the entire length of the gene.   
+After this gene was sequenced, all of the reads were assembled together into a single consensus sequence.      
+<em>mecA</em> is a well-characterized gene, so there are no ambiguous regions,   
+and there is no need for there to be multiple contigs  
+(that is, for the gene to be broken into multiple pieces, since we know how the reads should be assembled).  </p>
+<p>Let's try reading in a larger FASTQ file. </p>
+<p>The raw reads for a <em>Staphylococcus aureus</em> isolate were sequenced with Illumina and uploaded to NCBI <a href="https://trace.ncbi.nlm.nih.gov/Traces/index.html?run=SRR1050625">here</a>.     
+The link to download the raw FASTQ files can be found <a href="https://trace.ncbi.nlm.nih.gov/Traces/index.html?run=SRR1050625">here</a>.</p>
+<p>The BioSample ID for this sample is <code>SAMN02360768</code>.  
+This ID refers to the physical bacterial isolate.  
+The SRA sample accession number (an internal value used within the Sequence Read Archive) is <code>SRS515580</code>.    
+Both values correspond to one another and are helpful identifiers. </p>
+<p>The SRA run accession (SRR) uniquely identifies a sequencing run.  
+This sample is associated with two runs, and for this example we will download data linked to experiment <code>SRX392511</code>.   </p>
+<p>To download using the command line, type:</p>
+<pre><code class="julia">curl -L --retry 5 --retry-delay 2 \
+  &quot;https://trace.ncbi.nlm.nih.gov/Traces/sra-reads-be/fastq?acc=SRX392511&quot; \
+  | gzip -c &gt; SRX392511.fastq.gz</code></pre>
+<p>Alternatively, command line code can be executed from within Julia:</p>
+<p>This file can be downloaded on the command line using <code>curl</code>.  </p>
+<blockquote><p>One of the nice things about Julia is that it is 
+super easy to toggle between the Julia REPL and 
+bash shell by typing <code>;</code> to access shell mode 
+from Julia.  
+You can use the <code>backspace</code>/<code>delete</code> key to 
+quickly toggle back to the Julia REPL.</p>
+</blockquote><pre><code class="julia">run(pipeline(
+    `curl -L --retry 5 --retry-delay 2 &quot;https://trace.ncbi.nlm.nih.gov/Traces/sra-reads-be/fastq?acc=SRX392511&quot;`,
+    `gzip -c`,
+    &quot;SRX392511.fastq.gz&quot;
+    )
+)</code></pre>
+<p>This file is gzipped, so we'll need to account for that as we are reading it in with <code>FASTX.jl</code>.  
+In Julia, we can decompress gzipped files using <code>CodecZlib.jl</code>.  </p>
+<p>Instead of printing out every record (this isn't super practical because it's a big file), let's save all the records into a vector.</p>
+<pre><code class="julia">using CodecZlib
+
+records = []
+
+FASTQReader(GzipDecompressorStream(open(&quot;assets/SRX392511.fastq.gz&quot;))) do reader
+           for record in reader
+               push!(records, record)
+           end
+       end</code></pre>
+<p>We can see how many reads there are by looking at the length of the vector <code>records</code>.</p>
+<pre><code class="julia">julia&gt; length(records)
+9852716</code></pre>
+<p>Let's take a look at what the first 10 reads look like:</p>
+<pre><code class="julia">julia&gt; records[1:10]
+10-element Vector&lbrace;Any&rbrace;:
+ FASTX.FASTQ.Record(&quot;SRX392511.1 1 length=101&quot;, &quot;AGGATTTTGTTATATTGTA…&quot;, &quot;$$$$$$$$$$$$$$$$$$$…&quot;)
+ FASTX.FASTQ.Record(&quot;SRX392511.1 1 length=101&quot;, &quot;AGCATAAATTTAAAAAAAA…&quot;, &quot;$$$$$$$$$$$$$$$$$$$…&quot;)
+ FASTX.FASTQ.Record(&quot;SRX392511.2 2 length=101&quot;, &quot;TAGATTAAAATTCTCGTAT…&quot;, &quot;???????????????????…&quot;)
+ FASTX.FASTQ.Record(&quot;SRX392511.2 2 length=101&quot;, &quot;TAGATTAAAATTCTCGTAG…&quot;, &quot;???????????????????…&quot;)
+ FASTX.FASTQ.Record(&quot;SRX392511.3 3 length=101&quot;, &quot;GAGCAGTAGTATAAAATGA…&quot;, &quot;???????????????????…&quot;)
+ FASTX.FASTQ.Record(&quot;SRX392511.3 3 length=101&quot;, &quot;CCGACACAATTACAAGCCA…&quot;, &quot;???????????????????…&quot;)
+ FASTX.FASTQ.Record(&quot;SRX392511.4 4 length=101&quot;, &quot;GATTATCTAGTCATAATTC…&quot;, &quot;???????????????????…&quot;)
+ FASTX.FASTQ.Record(&quot;SRX392511.4 4 length=101&quot;, &quot;TTCGCCCCCCCAAAAGGCT…&quot;, &quot;???????????????????…&quot;)
+ FASTX.FASTQ.Record(&quot;SRX392511.5 5 length=101&quot;, &quot;ATAAAATGAACTTGCGTTA…&quot;, &quot;???????????????????…&quot;)
+ FASTX.FASTQ.Record(&quot;SRX392511.5 5 length=101&quot;, &quot;TAACTTGTGGATAATTATT…&quot;, &quot;???????????????????…&quot;)
+ </code></pre>
+   <p> Let's calculate the average quality across all reads. 
+ We'll do this by converting each PHRED score to its error probability,   
+ and summing these values across all bases in all reads.  
+ Then, we can divide this sum by the total number of bases  
+ to get the average probability across the entire dataset.   
+ It's important that we first convert the PHRED scores to the probability errors before averaging,   
+because PHRED is a logarithmic transformation of error probability.  
+Therefore, simply averaging PHRED and then converting to error probability is not the same as converting PHRED to error probability and averaging that sum.  </p>
+<pre><code class="julia">function phred_to_prob(Q)
+    # The formula is Pe = 10^(-Q/10)
+    return 10^(-Q / 10.0)
+end
+
+# get sum of all error probabilities
+total_error_prob = sum(
+    sum(phred_to_prob(q) for q in FASTQ.quality_scores(record))
+    for record in records
+)
+4.5100356107423276e7
+# get total number of bases
+total_bases = sum(length(FASTQ.quality_scores(record)) for record in records)
+995124316
+
+# get average error probability
+total_error_prob/total_bases
+0.045321328584059316</code></pre>
+<p>The average error probability is just 4.53%,   
+meaning the majority of reads are high quality.  </p>
+<p>More information about converting ASCII characters and PHRED scores to quality scores can be found <a href="https://people.duke.edu/%7Eccc14/duke-hts-2018/bioinformatics/quality_scores.html">here</a>.  </p>
+<p>Now that we've learned how to read files in and manipulate them a bit,  
+let's see if we can align 2 <em>mecA</em> genes to compare them.  </p>
+
+  <footer class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> BioJulia Developers
+   · Last modified: 
+  <br>
+  Built with <a href="https://github.com/tlienart/Xranklin.jl">Xranklin.jl</a>
+</footer>
+
+</div>
+
+  </main>
+  
+  
+    <script src="/BioTutorials/libs/highlight/julia-custom.min.js"></script>
+<script>
+  // Configure highlight.js to recognize Xranklin's class format
+  document.querySelectorAll('pre code').forEach((el) => {
+    if (el.className && !el.className.startsWith('language-')) {
+      el.classList.add('language-' + el.className.split(' ')[0]);
+    }
+  });
+  hljs.highlightAll();
+</script>
+
+  
+  <script>
+    // Theme toggle functionality
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      if (!toggle) return;
+
+      function getSystemTheme() {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+      function getCurrentTheme() {
+        const stored = localStorage.getItem('theme');
+        if (stored) return stored;
+        return getSystemTheme();
+      }
+
+      function updateHighlightTheme(isDark) {
+        const lightStyle = document.getElementById('hljs-light');
+        const darkStyle = document.getElementById('hljs-dark');
+        if (lightStyle && darkStyle) {
+          lightStyle.disabled = isDark;
+          darkStyle.disabled = !isDark;
+        }
+      }
+
+      toggle.addEventListener('click', function() {
+        const current = getCurrentTheme();
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateHighlightTheme(next === 'dark');
+      });
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+          // Only update if user hasn't manually set a preference
+          document.documentElement.removeAttribute('data-theme');
+          updateHighlightTheme(e.matches);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
