@@ -6,12 +6,16 @@ rss_descr = "Using NCBIBlast.jl to run BLAST searches"
 +++
 
 # Introduction to BLAST
-A BLAST search allows you to query a sequence (either nucleotide or protein) against an entire database of sequences.  
+A BLAST search allows you to query a sequence (either nucleotide or protein) against an entire database of sequences. 
+It can be helpful for quickly compare unknown sequences to databases of established reference sequences for purposes such as species identity or assignment gene function.   
 
 More information about how to use BLAST can be found in its [manual](https://www.ncbi.nlm.nih.gov/books/NBK569856/).  
 
-BLAST's can be run from the BLAST web page [here](https://blast.ncbi.nlm.nih.gov/Blast.cgi).  
-A user can simply copy in a nucleotide sequence and search for a best match against all of the databases in NCBI!  
+BLAST searches can be run from the command line interface (CLI) or through BLAST web page [here](https://blast.ncbi.nlm.nih.gov/Blast.cgi).  
+A user can simply copy in a nucleotide sequence and search for the best match in NCBI! 
+While searching from the website is fast and straightforward,   
+it only searches against the NCBI databases.    
+The CLI allows users to query against both NCBI databases and custom databases.  
 
 `NCBIBlast.jl` is a thin wrapper around the BLAST command line tool, 
 allowing users to run the tool within Julia.  
@@ -34,7 +38,7 @@ Note: [BioTools BLAST](https://biojulia.dev/BioTools.jl/stable/blast/) is a depr
 
 The keywords used in the tool are sent to the shell for running BLAST.  
 
-As stated on the Github [docs](https://github.com/BioJulia/NCBIBlast.jl), the julia call
+As stated on the GitHub [docs](https://github.com/BioJulia/NCBIBlast.jl), the Julia call
 
 ```
 blastn(; query = "a_file.txt", db="mydb", out="results.txt")
@@ -58,9 +62,9 @@ More directions on building a BLAST database locally can be found [here](https:/
 
 ## Example: Building a local BLAST database and running the BLAST search
 
-For our first example, we will replicate the example on the NCBIBlast.jl Github.  
+For our first example, we will replicate the example on the `NCBIBlast.jl` Github.  
 
-First, we will build a local database using a fasta file found in the NCBIBlast github repository ([link here](https://github.com/BioJulia/NCBIBlast.jl/blob/main/test/example_files/dna2.fasta)).  
+First, we will build a local database using a FASTA file found in the NCBIBlast github repository ([link here](https://github.com/BioJulia/NCBIBlast.jl/blob/main/test/example_files/dna2.fasta)).  
 
 ```
 makeblastdb(; in="assets/dna2.fasta", dbtype="nucl")
@@ -94,7 +98,7 @@ io = IOBuffer();
 blastn(buf; stdout=io, db="assets/dna2.fasta", outfmt="6");
 seek(io, 0);
 ```
-The command `seek(io,0)` moves the cursor of to the start of the captured object (index 0) so it can be read into a dataframe.  
+The command `seek(io,0)` moves the cursor to the start of the captured object (index 0) so it can be read into a dataframe.  
 
 
 ```
@@ -113,8 +117,8 @@ This output tells us that the query sequence (`Query_1` is the default name sinc
 There is 100% identity on a region that is 38 nucleotides long. 
 There are 0 mismatches or gap openings.  
 The match starts at index 1 on the query sequence, and ends at index 82.
-This region matches a region on the `Test1` that spans from index 82 to 119.  
-The E-value is `5.64e-18`, meaning that it is extremely unlikely that this match occured simply due to chance.  
+This region matches a region in the `Test1` sequence spanning from index 82 to 119.  
+The E-value is `5.64e-18`, meaning that it is extremely unlikely that this match occurred simply due to chance.  
 
 Here is a description of the E-value from the NCBI [website](https://blast.ncbi.nlm.nih.gov/doc/blast-help/FAQ.html):
 > The Expect value (E) is a parameter that describes the number of 
@@ -151,7 +155,8 @@ We should see that the query fasta is a direct hit to the _mecA_ gene
 For this BLAST search, I will search against the `core_nt` database, 
 which is a faster, smaller, and more focused subset of the traditional `nt` (nucleotide) database.  
 This newer database is the default as of August 2024.    
-It seeks to reduce redundancy and reduce storage when downloading the database.    More information about it can be found [here](https://ncbiinsights.ncbi.nlm.nih.gov/2024/07/18/new-blast-core-nucleotide-database/).  
+It seeks to reduce redundancy and storage requirements when downloading the database.      
+More information about it can be found [here](https://ncbiinsights.ncbi.nlm.nih.gov/2024/07/18/new-blast-core-nucleotide-database/).    
 
 General information about the different kinds of BLAST databases is also available [here](https://www.nlm.nih.gov/ncbi/workshops/2023-08_BLAST_evol/databases.html).  
 
@@ -204,10 +209,10 @@ Because of this, the first row in the results is not necessarily a better match 
 even though it appears first.  
 
 To verify the first hit, we can look up the GenBankID of the first hit: `CP026646.1`.    
-The NCBI [page](https://www.ncbi.nlm.nih.gov/nuccore/CP026646.1/) listing this sample confirms that this sample was phenotyped as _S. aureus_.  
+The NCBI [page](https://www.ncbi.nlm.nih.gov/nuccore/CP026646.1/) for this sample confirms that this sample was phenotyped as _S. aureus_.  
 Our query matches from indices 46719 to 46580.  
 When we use the Graphics feature to visualize gene annotations, we see that there is a clear match to _mecA_.  
 
 ![BLAST Graphics](assets/mecA_BLAST.png) 
 
-Overall, this confirms that our BLAST worked correctly!  
+Overall, this confirms that our BLAST worked as corrected!  
