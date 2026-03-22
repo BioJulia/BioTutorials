@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // Set theme immediately to prevent flash
+    (function() {
+      const stored = localStorage.getItem('theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
+  
+   <link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github.min.css" id="hljs-light">
+<link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github-dark.min.css" id="hljs-dark" disabled>
+<script>
+  // Set initial highlight theme based on current theme
+  (function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.getElementById('hljs-light').disabled = isDark;
+    document.getElementById('hljs-dark').disabled = !isDark;
+  })();
+</script>
+   
+  <link rel="stylesheet" href="/BioTutorials/css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<link rel="icon" type="image/png" sizes="192x192" href="/BioTutorials/assets/favicon.png">
+<link rel="shortcut icon" href="/BioTutorials/assets/favicon.ico">
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="/BioTutorials/assets/apple-touch-icon.png">
+
+
+   <title>Problem 1: Counting DNA Nucleotides - BioJulia</title>  
+</head>
+<body>
+  <header class="site-header">
+  <div class="header-content">
+    <div class="header-left">
+      <a href="https://biojulia.dev/BioTutorials" class="logo-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136.48101 51.472999" height="32" aria-label="BioJulia">
+          <g id="bubble-helix">
+            <circle cx="5.9792" cy="20.3" r="5.9792" fill="#945bb0"/>
+            <circle cx="21.317" cy="39.5" r="4.9393" fill="#4266d5"/>
+            <circle cx="16.378" cy="11.7" r="4.9393" fill="#c93d39"/>
+            <circle cx="35.095" cy="35.9" r="5.9792" fill="#945bb0"/>
+            <circle cx="47.184" cy="23.8" r="7.409" fill="#4266d5"/>
+            <circle cx="28.986" cy="9.7" r="4.5494" fill="#3b972e"/>
+            <circle cx="89.428" cy="46.5" r="4.9393" fill="#c93d39"/>
+            <circle cx="71.62" cy="5.6" r="5.5892" fill="#945bb0"/>
+            <circle cx="121.01" cy="15.5" r="5.5892" fill="#c93d39"/>
+            <circle cx="59.662" cy="30.3" r="2.4697" fill="#4266d5"/>
+            <circle cx="103.6" cy="19.9" r="3.2496" fill="#c93d39"/>
+            <circle cx="123.61" cy="36.5" r="2.7296" fill="#4266d5"/>
+            <circle cx="127.64" cy="5.2" r="3.8995" fill="#3b972e"/>
+            <circle cx="132.58" cy="39.2" r="3.8995" fill="#945bb0"/>
+            <circle cx="67.591" cy="37.4" r="3.3795" fill="#3b972e"/>
+            <circle cx="95.017" cy="13.9" r="4.2894" fill="#4266d5"/>
+            <circle cx="77.729" cy="42.9" r="3.8995" fill="#945bb0"/>
+            <circle cx="102.56" cy="42.0" r="5.8492" fill="#4266d5"/>
+            <circle cx="113.6" cy="28.8" r="6.7591" fill="#3b972e"/>
+            <circle cx="57.582" cy="11.0" r="6.3691" fill="#c93d39"/>
+            <circle cx="38.735" cy="14.8" r="3.3795" fill="#c93d39"/>
+            <circle cx="84.618" cy="7.9" r="5.3293" fill="#3b972e"/>
+          </g>
+        </svg>
+        <span>BioTutorials</span>
+      </a>
+    </div>
+    <nav class="header-nav">
+      <a href="/BioTutorials/">Tutorials</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+  <main class="franklin-content">
+
+<div class="franklin-content" >
+  <h1 id="problem_1_counting_dna_nucleotides" ><a href="#problem_1_counting_dna_nucleotides"> 🧬 Problem 1: Counting DNA Nucleotides</a></h1><p>🤔 <a href="https://rosalind.info/problems/dna/">Problem link</a></p>
+<blockquote><p><strong>Note:</strong> For each of these problems, you are strongly encouraged
+to read through the problem descriptions,
+especially if you're somewhat new to molecular biology.
+We will mostly not repeat the background concepts in these notebooks,
+except where they are relevant to the solutions.</p>
+</blockquote><blockquote><p><strong>The Problem</strong></p>
+<p>A string is simply an ordered collection of symbols selected from some
+alphabet and formed into a word; the length of a string is the number of symbols that it contains.</p>
+<p>An example of a length 21 DNA string (whose alphabet contains the symbols 'A', 'C', 'G', and 'T') is "ATGCTTCAGAAAGGTCTTACG."</p>
+<p><strong>Given</strong>: A DNA string <code>s</code> of length at most 1000 nt.</p>
+<p><strong>Return</strong>: Four integers (separated by spaces) counting the respective number
+of times that the symbols 'A', 'C', 'G', and 'T' occur in <code>s</code>.</p>
+<p><strong>Sample Dataset</strong></p>
+<pre><code class="julia">AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC</code></pre>
+<p><strong>Sample Output</strong></p>
+<pre><code class="julia">20 12 17 21</code></pre>
+</blockquote><p>Let's see how it's done!</p>
+<h3 id="dna_sequences_are_strings_of_chars" ><a href="#dna_sequences_are_strings_of_chars"> DNA sequences are <code>String</code>s of <code>Char</code>s</a></h3><p>In julia, single characters and strings,
+which are made up of multiple characters, have different types.
+<code>Char</code> and <code>String</code> respectively.</p>
+<p>They are also written differently - single quotes for a <code>Char</code>,
+and double quotes for a <code>String</code>.</p>
+<pre><code class="julia">chr = 'a'
+str = &quot;A&quot;
+typeof(chr)  # Char
+typeof(str)  # String</code></pre>
+<p>In many ways, a <code>String</code> can be thought of as a vector of <code>Char</code>s,
+and many julia functions that operate on collections like <code>Vector</code>s
+will work on <code>String</code>s.
+We can also loop over the contents of a string,
+which will treat each <code>Char</code> separately.</p>
+<pre><code class="julia">for c in &quot;banana&quot;
+    @info c
+end</code></pre>
+<h3 id="approach_1_counting_in_loops" ><a href="#approach_1_counting_in_loops"> Approach 1: counting in loops</a></h3><p>One relatively straightforward way to approach this problem
+is to set a variable to <code>0</code> for each base,
+then loop through the sequence, adding <code>1</code> to the appropriate
+variable at each character.</p>
+<p>I'll also stick this into a function,
+so we can easily reuse the code.</p>
+<pre><code class="julia">function countbases(seq) # here `seq` is an &quot;argument&quot; for the function
+    a = 0
+    c = 0
+    g = 0
+    t = 0
+    for base in seq
+        if base == 'A'
+            a += 1 # this is equivalent to `a = a + 1`
+        elseif base == 'C'
+            c += 1
+        elseif base == 'G'
+            g += 1
+        elseif base == 'T'
+            t += 1
+        else
+            # it is often a good idea to try to handle possible mistakes explicitly
+            error(&quot;Base $base is not supported&quot;)
+        end
+    end
+    return (a, c, g, t)
+end
+
+countbases(&quot;AAA&quot;)  # (3, 0, 0, 0)</code></pre>
+<p>Now let's see if it works on the example dataset.
+Remember, we should be getting the answer <code>20 12 17 21</code></p>
+<pre><code class="julia">answer = &quot;20 12 17 21&quot;
+input_dna = &quot;AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC&quot;
+countbases(input_dna)  # (20, 12, 17, 21)</code></pre>
+<p>Well, the formatting is just a bit different -
+The julia type is a <code>Tuple</code>, which is surrounded by parentheses.
+To fix this, we can use the <code>join</code> function.</p>
+<pre><code class="julia">@assert join(countbases(input_dna), &quot; &quot;) == answer</code></pre>
+<h3 id="approach_2_using_count()" ><a href="#approach_2_using_count()"> Approach 2: using <code>count()</code></a></h3><p>Another approach is to use the built-in <code>count()</code> function,
+which takes a "predicate" function as the first argument
+and an iterable collection as the second argument.
+The predicate function must take each element of the collection,
+and return either <code>true</code> or <code>false</code>.
+The <code>count()</code> function then returns the number of elements
+that returned <code>true</code>.</p>
+<p>For example, if I define the <code>lessthan5()</code> function
+to return <code>true</code> if a value is less than 5,
+I can then use it as a predicate to count the number of values
+in a <code>Vector</code> of numbers that are less than 5.</p>
+<pre><code class="julia">function lessthan5(num)
+    return num &lt; 5
+end
+
+count(lessthan5, [1, 5, 6, -3, 3])  # 3</code></pre>
+<p>Often, we don't want to have to define a simple function like <code>lessthan5()</code>
+for every predicate we want to test, especially if they will only be used once.
+Instead, we can use an "anonymous" function (also sometimes called "lambdas")
+as the first argument.</p>
+<p>In julia, anonymous functions have the syntax <code>arg -&gt; func_body</code>.
+In other words, the same expression above could be written as:</p>
+<pre><code class="julia">count(num -&gt; num &lt; 5,  [1, 5, 6, -3, 3])  # 3</code></pre>
+<p>Here, <code>num -&gt; num &lt; 5</code> is identical to the definition for <code>lessthan5(num)</code>.</p>
+<p>So, now we can write a different formulation of <code>countbases()</code> using <code>count()</code>:</p>
+<pre><code class="julia">function countbases2(seq)
+    a = count(base-&gt; base == 'A', seq)
+    c = count(base-&gt; base == 'C', seq)
+    g = count(base-&gt; base == 'G', seq)
+    t = count(base-&gt; base == 'T', seq)
+    return (a,c,g,t)
+end
+
+@assert countbases2(input_dna) == countbases(input_dna)</code></pre>
+<blockquote><p><strong>Tip:</strong> Even though this approach is quite a bit more succinct,
+it might end up being a bit slower than <code>countbases</code>, since
+it has to loop over the sequence 4 times instead of just once.</p>
+<p>Sometimes, you need to make trade-offs between clarity and efficiency.
+One of the great things about <code>julia</code> is that a lot of ways of approaching
+the same problem are often possible, and often fast (or they can be made fast).</p>
+</blockquote><h3 id="approach_3_using_biosequences.jl" ><a href="#approach_3_using_biosequences.jl"> Approach 3: using BioSequences.jl</a></h3><p>The <code>BioSequences.jl</code> package is designed to efficiently work
+with biological sequences like DNA sequences.
+<code>BioSequences.jl</code> efficiently encodes biological sequences using
+special types that are not <code>Char</code> or <code>String</code>s.</p>
+<pre><code class="julia">using BioSequences
+
+seq = LongDNA&lbrace;2&rbrace;(input_dna)
+
+sizeof(input_dna)  # 70 bytes (1 byte per char)
+sizeof(seq)        # 18 bytes (2 bits per base)</code></pre>
+<p>Counting individual nucleotides isn't the most common operation,
+but <code>BioSequences.jl</code> has some <a href="https://biojulia.github.io/BioSequences.jl/stable/sequence_search/">advanced searching</a> functionality
+built-in. It's a bit overkill for this task, but for completeness:</p>
+<pre><code class="julia">function countbases3(seq)
+    a = count(==(DNA_A), seq)
+    c = count(==(DNA_C), seq)
+    g = count(==(DNA_G), seq)
+    t = count(==(DNA_T), seq)
+    return (a,c,g,t)
+end
+
+@assert countbases3(seq) == countbases2(input_dna)</code></pre>
+<h3 id="benchmarking" ><a href="#benchmarking"> Benchmarking</a></h3><p>Julia programmers like speed,
+so let's benchmark our approaches!</p>
+<pre><code class="julia">using BenchmarkTools
+
+testseq = randdnaseq(100_000) #this is defined in BioSequences
+testseq_str = string(testseq)
+
+@benchmark countbases($testseq_str)
+@benchmark countbases2($testseq_str)
+@benchmark countbases3($testseq)</code></pre>
+<p>Interestingly, <code>countbases2()</code> is actually faster than <code>countbases()</code>,
+at least for longer sequences. This may be because <a href="https://en.wikipedia.org/wiki/Single_instruction,_multiple_data">SIMD</a> lets the calls to <code>count()</code> work in parallel.</p>
+<p>But <code>countbases3()</code> is even faster. Let me make one more function that mimics the behavior of the original <code>countbases()</code> but uses <code>BioSequences.jl</code> instead.</p>
+<pre><code class="julia">function countbases4(seq)
+    a = 0
+    c = 0
+    g = 0
+    t = 0
+    for base in seq
+        if base == DNA_A
+            a += 1
+        elseif base == DNA_C
+            c += 1
+        elseif base == DNA_G
+            g += 1
+        elseif base == DNA_T
+            t += 1
+        else
+            error(&quot;Base $base is not supported&quot;)
+        end
+    end
+    return (a, c, g, t)
+end
+
+@benchmark countbases4($testseq)</code></pre>
+
+  <footer class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> BioJulia Developers
+   · Last modified: 
+  <br>
+  Built with <a href="https://github.com/tlienart/Xranklin.jl">Xranklin.jl</a>
+</footer>
+
+</div>
+
+  </main>
+  
+  
+    <script src="/BioTutorials/libs/highlight/julia-custom.min.js"></script>
+<script>
+  // Configure highlight.js to recognize Xranklin's class format
+  document.querySelectorAll('pre code').forEach((el) => {
+    if (el.className && !el.className.startsWith('language-')) {
+      el.classList.add('language-' + el.className.split(' ')[0]);
+    }
+  });
+  hljs.highlightAll();
+</script>
+
+  
+  <script>
+    // Theme toggle functionality
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      if (!toggle) return;
+
+      function getSystemTheme() {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+      function getCurrentTheme() {
+        const stored = localStorage.getItem('theme');
+        if (stored) return stored;
+        return getSystemTheme();
+      }
+
+      function updateHighlightTheme(isDark) {
+        const lightStyle = document.getElementById('hljs-light');
+        const darkStyle = document.getElementById('hljs-dark');
+        if (lightStyle && darkStyle) {
+          lightStyle.disabled = isDark;
+          darkStyle.disabled = !isDark;
+        }
+      }
+
+      toggle.addEventListener('click', function() {
+        const current = getCurrentTheme();
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateHighlightTheme(next === 'dark');
+      });
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+          // Only update if user hasn't manually set a preference
+          document.documentElement.removeAttribute('data-theme');
+          updateHighlightTheme(e.matches);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
