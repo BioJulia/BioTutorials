@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // Set theme immediately to prevent flash
+    (function() {
+      const stored = localStorage.getItem('theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
+  
+   <link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github.min.css" id="hljs-light">
+<link rel="stylesheet" href="/BioTutorials/libs/highlight/styles/github-dark.min.css" id="hljs-dark" disabled>
+<script>
+  // Set initial highlight theme based on current theme
+  (function() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') &&
+       window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.getElementById('hljs-light').disabled = isDark;
+    document.getElementById('hljs-dark').disabled = !isDark;
+  })();
+</script>
+   
+  <link rel="stylesheet" href="/BioTutorials/css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<link rel="icon" type="image/png" sizes="192x192" href="/BioTutorials/assets/favicon.png">
+<link rel="shortcut icon" href="/BioTutorials/assets/favicon.ico">
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="/BioTutorials/assets/apple-touch-icon.png">
+
+
+   <title>BLAST - BioJulia</title>  
+</head>
+<body>
+  <header class="site-header">
+  <div class="header-content">
+    <div class="header-left">
+      <a href="https://biojulia.dev/BioTutorials" class="logo-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136.48101 51.472999" height="32" aria-label="BioJulia">
+          <g id="bubble-helix">
+            <circle cx="5.9792" cy="20.3" r="5.9792" fill="#945bb0"/>
+            <circle cx="21.317" cy="39.5" r="4.9393" fill="#4266d5"/>
+            <circle cx="16.378" cy="11.7" r="4.9393" fill="#c93d39"/>
+            <circle cx="35.095" cy="35.9" r="5.9792" fill="#945bb0"/>
+            <circle cx="47.184" cy="23.8" r="7.409" fill="#4266d5"/>
+            <circle cx="28.986" cy="9.7" r="4.5494" fill="#3b972e"/>
+            <circle cx="89.428" cy="46.5" r="4.9393" fill="#c93d39"/>
+            <circle cx="71.62" cy="5.6" r="5.5892" fill="#945bb0"/>
+            <circle cx="121.01" cy="15.5" r="5.5892" fill="#c93d39"/>
+            <circle cx="59.662" cy="30.3" r="2.4697" fill="#4266d5"/>
+            <circle cx="103.6" cy="19.9" r="3.2496" fill="#c93d39"/>
+            <circle cx="123.61" cy="36.5" r="2.7296" fill="#4266d5"/>
+            <circle cx="127.64" cy="5.2" r="3.8995" fill="#3b972e"/>
+            <circle cx="132.58" cy="39.2" r="3.8995" fill="#945bb0"/>
+            <circle cx="67.591" cy="37.4" r="3.3795" fill="#3b972e"/>
+            <circle cx="95.017" cy="13.9" r="4.2894" fill="#4266d5"/>
+            <circle cx="77.729" cy="42.9" r="3.8995" fill="#945bb0"/>
+            <circle cx="102.56" cy="42.0" r="5.8492" fill="#4266d5"/>
+            <circle cx="113.6" cy="28.8" r="6.7591" fill="#3b972e"/>
+            <circle cx="57.582" cy="11.0" r="6.3691" fill="#c93d39"/>
+            <circle cx="38.735" cy="14.8" r="3.3795" fill="#c93d39"/>
+            <circle cx="84.618" cy="7.9" r="5.3293" fill="#3b972e"/>
+          </g>
+        </svg>
+        <span>BioTutorials</span>
+      </a>
+    </div>
+    <nav class="header-nav">
+      <a href="/BioTutorials/">Tutorials</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+  <main class="franklin-content">
+
+<div class="franklin-content" >
+  <h1 id="introduction_to_blast" ><a href="#introduction_to_blast"> Introduction to BLAST</a></h1><p>A BLAST search allows you to query a sequence (either nucleotide or protein) against an entire database of sequences.   
+It can quickly compare unknown sequences to databases of established reference sequences for purposes such as species identity or assignment gene function.   </p>
+<p>More information about how to use BLAST can be found in its <a href="https://www.ncbi.nlm.nih.gov/books/NBK569856/">manual</a>.  </p>
+<p>BLAST searches can be run from the command line interface (CLI) or through the BLAST web page <a href="https://blast.ncbi.nlm.nih.gov/Blast.cgi">here</a>.  
+A user can simply copy in a protein or nucleotide sequence and search against NCBI to find the best match!     
+While searching from the website is fast and straightforward,   
+running searches from the website only performs searches against the NCBI databases.    
+The CLI allows users to query both NCBI databases and custom databases.    </p>
+<p><code>NCBIBlast.jl</code> is a thin wrapper around the BLAST command line tool, 
+allowing users to run the tool within Julia.    
+The following BLAST tools are supported by <code>NCBIBlast</code>:</p>
+<ul>
+<li><code>blastn</code></li>
+<li><code>blastp</code></li>
+<li><code>tblastn</code></li>
+<li><code>blastx</code></li>
+<li><code>makeblastdb</code></li>
+</ul>
+<p>A benefit of using the package is that it uses Julia's powerful <code>BinaryBuilder.jl</code> architechture to bundle the <code>BLAST+</code> executables  
+so that you don't have to deal with that.   
+In other words, if you do add <code>NCBIBLAST.jl</code>,   
+you don't need to have the command line tools available.</p>
+<p>Note: <a href="https://biojulia.dev/BioTools.jl/stable/blast/">BioTools BLAST</a> is a deprecated Julia package for running BLAST searches and is different from <code>NCBIBLAST</code>.  </p>
+<h1 id="how_ncbiblast.jl_works" ><a href="#how_ncbiblast.jl_works"> How <code>NCBIBlast.jl</code> works</a></h1><p>The keywords used in the tool are sent to the shell for running BLAST.  </p>
+<p>As stated on the GitHub <a href="https://github.com/BioJulia/NCBIBlast.jl">docs</a>, the Julia call</p>
+<pre><code class="julia">blastn(; query = &quot;a_file.txt&quot;, db=&quot;mydb&quot;, out=&quot;results.txt&quot;)</code></pre>
+<p>is sent to the shell as</p>
+<pre><code class="julia">$ blastn -query a_file.txt -db mydb -out results.txt</code></pre>
+<h1 id="blast_databases" ><a href="#blast_databases"> BLAST databases</a></h1><p>Just like running a BLAST search from the CLI, <code>NCBIBlast.jl</code> requires a BLAST database to search against.  
+The user can build a local, custom database,  
+or search against a specific NCBI database.       
+A custom BLAST database is constructed from FASTA files that serve as reference sequences.   
+A database can be built using the following command in <code>NCBIBlast.jl</code>:  </p>
+<pre><code class="julia">makeblastdb(; in=&quot;test/example_files/dna2.fasta&quot;, dbtype=&quot;nucl&quot;)</code></pre>
+<p>More directions on building a BLAST database locally can be found <a href="https://www.ncbi.nlm.nih.gov/books/NBK569841/">here</a>.  </p>
+<h2 id="example_building_a_local_blast_database_and_running_the_blast_search" ><a href="#example_building_a_local_blast_database_and_running_the_blast_search"> Example: Building a local BLAST database and running the BLAST search</a></h2><p>For our first example, we will replicate the example on the <code>NCBIBlast.jl</code> GitHub repository.    </p>
+<p>First, we will build a local database using a FASTA file found in the NCBIBlast github repository (<a href="https://github.com/BioJulia/NCBIBlast.jl/blob/main/test/example_files/dna2.fasta">link here</a>).  
+This file has been downloaded into <code>assets</code> as <code>dna2.fasta</code>.    </p>
+<pre><code class="julia">makeblastdb(; in=&quot;assets/dna2.fasta&quot;, dbtype=&quot;nucl&quot;)
+
+Building a new DB, current time: 03/16/2026 21:04:36
+New DB name:   /LOCAL/PATH/BioTutorials/cookbook/assets/dna2.fasta
+New DB title:  assets/dna2.fasta
+Sequence type: Nucleotide
+Keep MBits: T
+Maximum file size: 3000000000B
+Adding sequences from FASTA; added 2 sequences in 0.0012269 seconds.
+
+
+Process(`/Users/USER/.julia/artifacts/0406b91031ce302fa9117606d007d04635279fef/ncbi-blast-2.16.0+/bin/makeblastdb -in assets/dna2.fasta -dbtype nucl`, ProcessExited(0))</code></pre>
+<p>A new database was built in <code>assets</code>.</p>
+<p>Now, we can define our query sequence.  
+We can save the query string in memory (using <code>IOBuffer</code>) rather than reading in a FASTA file. </p>
+<pre><code class="julia">buf = IOBuffer(&quot;TTACCTGCCGTGAGTAAATTAAAATTTTATTGACTTAG&quot;)</code></pre>
+<p>Now, we can run the BLAST search.  
+The BLAST output format "6" means that the output will be tab-delimited text with no column names.  </p>
+<p>The BLAST output will be written into I/O.  </p>
+<pre><code class="julia">io = IOBuffer();
+blastn(buf; stdout=io, db=&quot;assets/dna2.fasta&quot;, outfmt=&quot;6&quot;);
+seek(io, 0);</code></pre>
+<p>The command <code>seek(io,0)</code> moves the cursor to the start of the captured object (index 0)   
+so it can be read into a dataframe via the <a href="https://dataframes.juliadata.org/stable/"><code>DataFrames.jl</code></a> package.  </p>
+<pre><code class="julia">using CSV, DataFrames
+CSV.read(io, DataFrame; header=false)
+
+1×12 DataFrame
+ Row │ Column1  Column2  Column3  Column4  Column5  Column6  Column7  Column8  Column9  Column10  Column11  Column12 
+     │ String7  String7  Float64  Int64    Int64    Int64    Int64    Int64    Int64    Int64     Float64   Float64  
+─────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │ Query_1  Test1      100.0       38        0        0        1       38       82       119  5.64e-18      71.3</code></pre>
+<h3 id="interpreting_blast_output" ><a href="#interpreting_blast_output"> Interpreting BLAST Output</a></h3><p>This output tells us that the query sequence      
+(<code>Query_1</code> is the default name for the sequence because we didn't specify a name)  
+matches <code>Test1</code> in the reference database.   
+There is 100% identity between the query and a region on <code>Test1</code> that is 38 nucleotides long.   
+There are 0 mismatches or gap openings.  
+The match starts at index 1 on the query sequence, and ends at index 82.
+This region matches a region in the <code>Test1</code> sequence spanning from index 82 to 119.  
+The E-value is <code>5.64e-18</code>, meaning that it is extremely unlikely that this match occurred simply due to chance.  </p>
+<p>Here is a description of the E-value from the NCBI <a href="https://blast.ncbi.nlm.nih.gov/doc/blast-help/FAQ.html">website</a>:</p>
+<blockquote><p>The Expect value (E) is a parameter that describes the number of hits one can “expect” to see  
+by chance when searching a database of a particular size.  
+It decreases exponentially as the Score (S) of the match increases.   
+The lower the E-value the more “significant” the match is.   
+However keep in mind that virtually identical short alignments have relatively high E values.   
+This is because the calculation of the E value takes into account the length of the query sequence.   
+These high E values make sense because shorter sequences  
+have a higher probability of occurring in the database purely by chance.</p>
+</blockquote><p>The bitscore is 71.3.  </p>
+<p>Here is a definition of bitscore from the NCBI BLAST <a href="https://www.ncbi.nlm.nih.gov/books/NBK62051/">glossary</a>:</p>
+<blockquote><p>The bit score, S', 
+is derived from the raw alignment score, S, 
+taking the statistical properties of the scoring system into account.   
+Because bit scores are normalized with respect to the scoring system,  
+they can be used to compare alignment scores from different searches.</p>
+</blockquote><h2 id="example_blasting_the_meca1_gene_against_all_of_ncbi" ><a href="#example_blasting_the_meca1_gene_against_all_of_ncbi"> Example: BLASTing the <em>mecA1</em> gene against all of NCBI</a></h2><p>Now that we've tried BLAST'ing against a local, custom database,   
+let's try BLAST'ing a piece of the <em>mecA</em> gene against NCBI.  
+To create the query file <code>mecA_BLAST.fasta</code>,   
+I randomly selected 140 nucleotides from <code>mecA.fasta</code>.  </p>
+<p>We should see that the query FASTA is a direct hit to the <em>mecA</em> gene  
+(one of the NCBI hits should definitely be the NCBI sample <code>NG_047945.1</code>,   
+which is the sample the gene fragment was extracted from).  </p>
+<p>For this BLAST search, I will search against the <code>core_nt</code> database,   
+which is a faster, smaller, and more focused subset of the traditional <code>nt</code> (nucleotide) database.  
+This newer database is the default as of August 2024.    
+It seeks to reduce redundancy and storage requirements when downloading.      
+More information about it can be found <a href="https://ncbiinsights.ncbi.nlm.nih.gov/2024/07/18/new-blast-core-nucleotide-database/">here</a>.    </p>
+<p>General information about the different kinds of BLAST databases is also available <a href="https://www.nlm.nih.gov/ncbi/workshops/2023-08_BLAST_evol/databases.html">here</a>.  </p>
+<pre><code class="julia">io = IOBuffer();
+blastn(&quot;assets/mecA_BLAST.fasta&quot;; db=&quot;core_nt&quot;, stdout=io, remote=true, outfmt=&quot;6 query subject expect&quot;)
+seek(io, 0);
+CSV.read(io, DataFrame; header=false)</code></pre>
+<p>Here is the output of the BLAST.  </p>
+<pre><code class="julia">julia&gt; CSV.read(io, DataFrame; header=false)
+500×12 DataFrame
+ Row │ Column1     Column2     Column3  Column4  Column5  Column6  Column7  Column8  Column9  Column10  Column11  Column12 
+     │ String15    String15    Float64  Int64    Int64    Int64    Int64    Int64    Int64    Int64     Float64   Int64    
+─────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │ mecA_BLAST  CP026646.1    100.0      140        0        0        1      140    46719     46580  7.12e-65       259
+   2 │ mecA_BLAST  CP154497.1    100.0      140        0        0        1      140    45702     45563  7.12e-65       259
+   3 │ mecA_BLAST  CP049499.1    100.0      140        0        0        1      140    61014     60875  7.12e-65       259
+   4 │ mecA_BLAST  CP030403.1    100.0      140        0        0        1      140    48633     48494  7.12e-65       259
+   5 │ mecA_BLAST  CP132494.1    100.0      140        0        0        1      140  1867742   1867603  7.12e-65       259
+   6 │ mecA_BLAST  MH798864.1    100.0      140        0        0        1      140      281       420  7.12e-65       259
+   7 │ mecA_BLAST  CP162442.1    100.0      140        0        0        1      140   503005    503144  7.12e-65       259
+   8 │ mecA_BLAST  OR082611.1    100.0      140        0        0        1      140     6415      6276  7.12e-65       259
+   9 │ mecA_BLAST  CP053183.1    100.0      140        0        0        1      140    41607     41468  7.12e-65       259
+  10 │ mecA_BLAST  CP085310.1    100.0      140        0        0        1      140  1610215   1610076  7.12e-65       259
+  11 │ mecA_BLAST  CP162465.1    100.0      140        0        0        1      140  1140196   1140057  7.12e-65       259
+  12 │ mecA_BLAST  CP133660.1    100.0      140        0        0        1      140  2821019   2821158  7.12e-65       259
+  13 │ mecA_BLAST  CP049476.1    100.0      140        0        0        1      140    40314     40175  7.12e-65       259
+  ⋮  │     ⋮           ⋮          ⋮        ⋮        ⋮        ⋮        ⋮        ⋮        ⋮        ⋮         ⋮         ⋮
+ 489 │ mecA_BLAST  CP093527.1    100.0      140        0        0        1      140    42814     42675  7.12e-65       259
+ 490 │ mecA_BLAST  CP035541.1    100.0      140        0        0        1      140    72431     72292  7.12e-65       259
+ 491 │ mecA_BLAST  CP145216.2    100.0      140        0        0        1      140    45830     45691  7.12e-65       259
+ 492 │ mecA_BLAST  CP193734.1    100.0      140        0        0        1      140    64595     64456  7.12e-65       259
+ 493 │ mecA_BLAST  CP083210.2    100.0      140        0        0        1      140    43331     43192  7.12e-65       259
+ 494 │ mecA_BLAST  MW052033.1    100.0      140        0        0        1      140      245       384  7.12e-65       259
+ 495 │ mecA_BLAST  CP168087.1    100.0      140        0        0        1      140    40806     40667  7.12e-65       259
+ 496 │ mecA_BLAST  CP150769.1    100.0      140        0        0        1      140  2583517   2583378  7.12e-65       259
+ 497 │ mecA_BLAST  CP030596.1    100.0      140        0        0        1      140    40848     40709  7.12e-65       259
+ 498 │ mecA_BLAST  MZ398128.1    100.0      140        0        0        1      140    16977     17116  7.12e-65       259
+ 499 │ mecA_BLAST  CP083199.2    100.0      140        0        0        1      140    40078     39939  7.12e-65       259
+ 500 │ mecA_BLAST  CP162663.1    100.0      140        0        0        1      140   938360    938499  7.12e-65       259
+                                                                                                           475 rows omitted</code></pre>
+<p>There are 500 hits with the same E-value and Bitscore.  
+This likely means that this sequence is an exact match to these 500 sequences in NCBI.  
+Because of this, the first row in the results is not necessarily a better match than the 500th,   
+even though it appears first.  </p>
+<p>To verify the first hit, we can look up the GenBankID of the first row: <code>CP026646.1</code>.    
+The NCBI <a href="https://www.ncbi.nlm.nih.gov/nuccore/CP026646.1/">page</a> for this sample confirms that this sample was phenotyped as <em>S. aureus</em>.  
+Our query matches indices 46719 to 46580 on this reference genome.  
+When we use the Graphics feature to visualize gene annotations on the reference genome,  
+we see that there is a clear match to <em>mecA</em> in the region that matches the query.  </p>
+<img src="assets/mecA_BLAST.png" alt="BLAST Graphics"> <p>Overall, this confirms that our BLAST worked as corrected!  </p>
+
+  <footer class="page-foot">
+  <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> BioJulia Developers
+   · Last modified: 
+  <br>
+  Built with <a href="https://github.com/tlienart/Xranklin.jl">Xranklin.jl</a>
+</footer>
+
+</div>
+
+  </main>
+  
+  
+    <script src="/BioTutorials/libs/highlight/julia-custom.min.js"></script>
+<script>
+  // Configure highlight.js to recognize Xranklin's class format
+  document.querySelectorAll('pre code').forEach((el) => {
+    if (el.className && !el.className.startsWith('language-')) {
+      el.classList.add('language-' + el.className.split(' ')[0]);
+    }
+  });
+  hljs.highlightAll();
+</script>
+
+  
+  <script>
+    // Theme toggle functionality
+    (function() {
+      const toggle = document.getElementById('theme-toggle');
+      if (!toggle) return;
+
+      function getSystemTheme() {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+      function getCurrentTheme() {
+        const stored = localStorage.getItem('theme');
+        if (stored) return stored;
+        return getSystemTheme();
+      }
+
+      function updateHighlightTheme(isDark) {
+        const lightStyle = document.getElementById('hljs-light');
+        const darkStyle = document.getElementById('hljs-dark');
+        if (lightStyle && darkStyle) {
+          lightStyle.disabled = isDark;
+          darkStyle.disabled = !isDark;
+        }
+      }
+
+      toggle.addEventListener('click', function() {
+        const current = getCurrentTheme();
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateHighlightTheme(next === 'dark');
+      });
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+          // Only update if user hasn't manually set a preference
+          document.documentElement.removeAttribute('data-theme');
+          updateHighlightTheme(e.matches);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
