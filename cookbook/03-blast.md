@@ -26,6 +26,11 @@ The following BLAST tools are supported by `NCBIBlast`:
 - `blastx`
 - `makeblastdb`
 
+A benefit of using the package is that it uses Julia's powerful `BinaryBuilder.jl` architechture to bundle the `BLAST+` executables  
+so that you don't have to deal with that.   
+In other words, if you do add `NCBIBLAST.jl`,   
+you don't need to have the command line tools available.
+
 Note: [BioTools BLAST](https://biojulia.dev/BioTools.jl/stable/blast/) is a deprecated Julia package for running BLAST searches and is different from `NCBIBLAST`.  
 
 
