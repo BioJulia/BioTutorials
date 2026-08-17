@@ -462,6 +462,67 @@ img {
 }
 
 /* ==================================================================
+   Series Cards (from utils.jl hfun_list_series)
+   ================================================================== */
+
+.series-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.series-card {
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-brand);
+  border-radius: 6px;
+  padding: 1.25rem 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.15s ease;
+}
+
+.series-card:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.series-card h2 {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  border: none;
+  font-size: 1.05rem;
+}
+
+.series-card h2 a {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.series-card h2 a:hover {
+  color: var(--color-brand);
+  text-decoration: none;
+}
+
+.series-card .description {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+.series-card .series-count {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-brand);
+  background-color: var(--color-bg-soft);
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  align-self: flex-start;
+}
+
+/* ==================================================================
    Footer
    ================================================================== */
 

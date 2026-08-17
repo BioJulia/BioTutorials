@@ -12,6 +12,8 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set preview path for PRs
         run: echo 'PRID=${{ env.PREVIEWS_PREFIX}}${{ github.event.number}}' >> $GITHUB_ENV
@@ -23,6 +25,7 @@ jobs:
           SITE_FOLDER: "./"
           BASE_URL_PREFIX: BioTutorials
           PREVIEW: ${{ env.PRID }}
+          JULIA_PRE: 'import Pkg; Pkg.setprotocol!(protocol="https")'
 
       - name: Comment PR preview URL
         uses: thollander/actions-comment-pull-request@v2
