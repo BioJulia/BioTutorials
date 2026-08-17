@@ -57,7 +57,7 @@ function hfun_list_dir(args::Vector{String})
 end
 
 function hfun_list_series()
-    parts = String[]
+    cards = []
     for entry in sort(readdir("."))
         isdir(entry) || continue
         startswith(entry, "_") && continue
@@ -70,15 +70,15 @@ function hfun_list_series()
         desc = (desc_raw !== nothing && desc_raw isa String) ? desc_raw : ""
         n = length(get_posts("", entry))
 
-        push!(parts, string(
+        push!(cards,
             node("article", class="series-card",
                 node("h2", node("a", href="/$entry/", title)),
                 isempty(desc) ? "" : node("p", class="description", desc),
-                node("p", class="post-meta", "$n tutorials")
+                node("span", class="series-count", "$n tutorials")
             )
-        ))
+        )
     end
-    return join(parts, "\n")
+    return string(node("div", class="series-grid", cards...))
 end
 
 # ===============================================
