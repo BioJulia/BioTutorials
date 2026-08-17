@@ -25,6 +25,7 @@ jobs:
           SITE_FOLDER: "./"
           BASE_URL_PREFIX: BioTutorials
           PREVIEW: ${{ env.PRID }}
+          JULIA_PRE: 'import Pkg; Pkg.setprotocol!(protocol="https")'
 
       - name: Comment PR preview URL
         uses: thollander/actions-comment-pull-request@v2
