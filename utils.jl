@@ -53,7 +53,12 @@ end
 
 function hfun_list_dir(args::Vector{String})
     isempty(args) && return ""
-    return _render_posts(get_posts("", args[1]))
+    posts = get_posts("", args[1])
+    sort!(posts, by=p -> begin
+        m = match(r"/(\d+)[^/]*$", p.href)
+        m === nothing ? typemax(Int) : parse(Int, m.captures[1])
+    end)
+    return _render_posts(posts)
 end
 
 function hfun_list_series()

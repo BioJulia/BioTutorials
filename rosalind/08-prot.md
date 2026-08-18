@@ -1,3 +1,10 @@
++++
+using Dates
+date = Date("2026-02-20")
+title = "Problem 8: Translating RNA into Protein"
+rss_descr = "Solving Rosalind problem PROT using base Julia."
++++
+
 # Translating RNA into Protein
 
 🤔 [Problem link](https://rosalind.info/problems/prot/)

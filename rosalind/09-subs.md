@@ -1,3 +1,10 @@
++++
+using Dates
+date = Date("2026-02-23")
+title = "Problem 9: Finding a Motif in DNA"
+rss_descr = "Solving Rosalind problem SUBS — finding all locations of a motif in a DNA string — using base Julia."
++++
+
 # Finding a Motif in DNA
 
 🤔 [Problem link](https://rosalind.info/problems/subs/)
