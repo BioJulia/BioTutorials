@@ -1,3 +1,10 @@
++++
+using Dates
+date = Date("2026-02-18")
+title = "Problem 7: Mendel's First Law"
+rss_descr = "Solving Rosalind problem IPRB — computing the probability of dominant-allele offspring — using base Julia."
++++
+
 # Mendel's First Law
 
 🤔 [Problem link](https://rosalind.info/problems/iprb/)
