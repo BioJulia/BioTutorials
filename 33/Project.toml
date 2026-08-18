@@ -1,0 +1,6 @@
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Hyperscript = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+NodeJS = "2bd173c7-0d6d-553b-b6af-13a54713934c"
+Xranklin = "558449b0-171e-4e1f-900f-d076a5ddf486"
